@@ -22,7 +22,79 @@ koipy 1.0 的 Rust 重构版。
 - 一份有效的 koipy 风格 YAML 配置
 - 可选：MiaoSpeed 后端、Web API TLS 证书/私钥、订阅转换后端
 
-## 构建
+## 下载二进制启动
+
+Release 页面提供 Linux amd64 二进制文件。普通用户推荐直接下载二进制启动，不需要在服务器上安装 Rust。
+
+### 1. 下载
+
+```bash
+wget https://github.com/nezha-rs/koipy-rs/releases/latest/download/koipy-rs-linux-amd64
+chmod +x koipy-rs-linux-amd64
+```
+
+### 2. 准备配置
+
+复制示例配置并按需修改：
+
+```bash
+wget https://raw.githubusercontent.com/nezha-rs/koipy-rs/master/config.example.yaml -O config.yaml
+nano config.yaml
+```
+
+至少需要填写：
+
+- `bot.bot-token`：Telegram Bot Token
+- `slaveConfig.slaves`：至少一个 MiaoSpeed 后端
+- `admin`：管理员 UID
+
+### 3. 检查配置
+
+```bash
+./koipy-rs-linux-amd64 --config config.yaml check
+```
+
+### 4. 启动服务
+
+```bash
+./koipy-rs-linux-amd64 --config config.yaml serve
+```
+
+### 5. 后台运行示例
+
+使用 `nohup`：
+
+```bash
+nohup ./koipy-rs-linux-amd64 --config config.yaml serve > koipy-rs.log 2>&1 &
+```
+
+使用 systemd：
+
+```ini
+[Unit]
+Description=koipy-rs
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/koipy-rs
+ExecStart=/opt/koipy-rs/koipy-rs-linux-amd64 --config /opt/koipy-rs/config.yaml serve
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+保存为 `/etc/systemd/system/koipy-rs.service` 后执行：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now koipy-rs
+sudo systemctl status koipy-rs
+```
+
+## 从源码构建
 
 ```bash
 cargo build --release
@@ -30,7 +102,7 @@ cargo build --release
 
 ## 运行
 
-建议显式指定配置文件：
+源码运行时也建议显式指定配置文件：
 
 ```bash
 cargo run -- --config config.example.yaml check
