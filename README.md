@@ -1,36 +1,36 @@
-﻿# koipy-rs
+# koipy-rs
 
-Rust rewrite of koipy 1.0.
+koipy 1.0 的 Rust 重构版。
 
-## What this is
+## 项目说明
 
-This project reimplements the koipy Telegram bot in Rust, including:
+本项目用 Rust 重写 koipy Telegram 机器人，覆盖内容包括：
 
-- Telegram bot command routing and long polling
-- subscription fetching, URL/protocol conversion, and Clash YAML parsing
-- MiaoSpeed WebSocket backend requests and result rendering
-- config loading, hot reload, state persistence, permissions, invites, and callbacks
-- image/table rendering for speed, topology, and connectivity reports
-- web API endpoints for config management
+- Telegram 机器人指令路由和长轮询
+- 订阅抓取、URL / 协议转换、Clash YAML 解析
+- MiaoSpeed WebSocket 后端请求与结果渲染
+- 配置加载、热重载、状态持久化、权限、邀请、回调
+- 速度图、拓扑图、连通性图的图片渲染
+- 用于配置管理的 Web API 接口
 
-License activation handling is intentionally not replicated.
+激活码 license 授权逻辑不复刻。
 
-## Requirements
+## 环境要求
 
-- Rust toolchain (stable)
-- A Telegram bot token
-- A valid koipy-style YAML config file
-- Optional: a MiaoSpeed backend, optional web API TLS cert/key, optional subscription converter backend
+- Rust 稳定版工具链
+- Telegram bot token
+- 一份有效的 koipy 风格 YAML 配置
+- 可选：MiaoSpeed 后端、Web API TLS 证书/私钥、订阅转换后端
 
-## Build
+## 构建
 
 ```bash
 cargo build --release
 ```
 
-## Run
+## 运行
 
-Use a config file path explicitly:
+建议显式指定配置文件：
 
 ```bash
 cargo run -- --config config.example.yaml check
@@ -38,18 +38,18 @@ cargo run -- --config config.example.yaml progress
 cargo run -- --config config.example.yaml serve
 ```
 
-## CLI commands
+## CLI 命令
 
 ### `progress`
-Prints the current rewrite progress table.
+打印当前重构进度表。
 
 ### `check`
-Validates the config and prints a short runtime summary.
+校验配置并输出运行摘要。
 
 ### `test <url>`
-Normalizes and prepares a subscription or protocol URL without starting Telegram.
+在不启动 Telegram 机器人的情况下，规范化并准备一个订阅或协议链接。
 
-Examples:
+示例：
 
 ```bash
 cargo run -- --config config.example.yaml test https://example.com/sub
@@ -57,57 +57,57 @@ cargo run -- --config config.example.yaml test vmess://example
 cargo run -- --config config.example.yaml test https://example.com/sub --include "HK" --exclude "CN" --kind test
 ```
 
-Flags:
+参数：
 
-- `--include`: regex filter for keeping nodes
-- `--exclude`: regex filter for dropping nodes
-- `--kind`: `test`, `speed`, `analyze`, or `topo`
+- `--include`：保留节点的正则过滤
+- `--exclude`：排除节点的正则过滤
+- `--kind`：`test`、`speed`、`analyze`、`topo`
 
 ### `serve`
-Starts the bot service.
+启动机器人服务。
 
-## Configuration
+## 配置说明
 
-The main config file is YAML and follows the koipy surface.
+主配置文件为 YAML，整体兼容 koipy 1.0 的配置面。
 
-Important top-level sections:
+常见顶层字段：
 
-- `admin`: admin user IDs
-- `network`: proxy and user agent settings
-- `subscription`: age-decryption config
-- `webapi`: embedded config API
-- `bot`: Telegram bot token, commands, runtime bot behavior
-- `image`: rendering and theme settings
-- `runtime`: task-level defaults
-- `scriptConfig`: script definitions
-- `slaveConfig`: backend definitions
-- `rules`: saved rules
-- `subconverter`: subscription conversion backend
-- `translation`: language packs
-- `callbacks`: HTTP hooks
-- `license`: kept for compatibility, but activation is not implemented
-- `log-level`: log verbosity
-- `user`: granted users list
+- `admin`：管理员 UID
+- `network`：代理与 UA
+- `subscription`：age 解密配置
+- `webapi`：内置配置 API
+- `bot`：Telegram token、命令、机器人行为
+- `image`：绘图与主题
+- `runtime`：任务级默认值
+- `scriptConfig`：脚本定义
+- `slaveConfig`：后端定义
+- `rules`：保存的规则
+- `subconverter`：订阅转换后端
+- `translation`：语言包
+- `callbacks`：HTTP 回调
+- `license`：兼容保留，但不实现激活
+- `log-level`：日志级别
+- `user`：已授权用户列表
 
-## Example config
+## 示例配置
 
-[`config.example.yaml`](./config.example.yaml) contains a full sample with the supported surface.
+[`config.example.yaml`](./config.example.yaml) 提供了完整示例。
 
-Highlights:
+重点功能：
 
-- `bot.commands` supports custom command entries
-- `runtime.dns` supports structured `enable` and `nameserver`
-- `slaveConfig.slaves[].option.dnsServer` is accepted as an alias for the backend DNS list
-- `subconverter.template.backend` supports placeholder expansion like `$Host`, `$Port`, `$Target`, `$EncodedURL`
-- `translation.resources` maps language keys to YAML files
+- `bot.commands` 支持自定义命令
+- `runtime.dns` 支持结构化的 `enable` 和 `nameserver`
+- `slaveConfig.slaves[].option.dnsServer` 兼容后端 DNS 列表
+- `subconverter.template.backend` 支持 `$Host`、`$Port`、`$Target`、`$EncodedURL` 等占位符
+- `translation.resources` 用于映射语言包文件
 
-## Bot commands
+## 机器人命令
 
-User commands:
+用户命令：
 
 - `/test`
 - `/speed`
-- `/analyze` or `/topo`
+- `/analyze` 或 `/topo`
 - `/re`
 - `/invite`
 - `/share`
@@ -118,7 +118,7 @@ User commands:
 - `/checkslaves`
 - `/demo`
 
-Admin commands:
+管理员命令：
 
 - `/system`
 - `/user`
@@ -133,47 +133,47 @@ Admin commands:
 - `/grant`
 - `/ungrant`
 - `/setcmd`
-- `/lang` or `/language`
+- `/lang` 或 `/language`
 - `/rule`
 - `/get`
 - `/set`
 - `/del`
 
-## Common workflows
+## 常见使用流程
 
-### 1. First launch
+### 1. 首次启动
 
-1. Create or copy a config file.
-2. Set `bot.bot-token`.
-3. Set at least one backend under `slaveConfig.slaves`.
-4. Run `cargo run -- --config <your-config> check`.
-5. Start the service with `cargo run -- --config <your-config> serve`.
+1. 复制一份配置文件。
+2. 填好 `bot.bot-token`。
+3. 至少配置一个 `slaveConfig.slaves` 后端。
+4. 先执行 `cargo run -- --config <你的配置> check`。
+5. 再执行 `cargo run -- --config <你的配置> serve`。
 
-### 2. Testing a subscription manually
+### 2. 手动测试订阅
 
 ```bash
 cargo run -- --config config.example.yaml test https://example.com/sub
 ```
 
-Add filters if needed:
+需要过滤时：
 
 ```bash
 cargo run -- --config config.example.yaml test https://example.com/sub --include "HK|JP" --exclude "CN"
 ```
 
-### 3. Using a protocol link
+### 3. 使用协议链接
 
-If `subconverter.enable = true`, protocol links like `vmess://`, `vless://`, `tuic://`, and `trojan://` can be converted through the configured template.
+当 `subconverter.enable = true` 时，`vmess://`、`vless://`、`tuic://`、`trojan://` 等协议链接可以通过模板转换。
 
-### 4. Running with a custom web API
+### 4. 启用 Web API
 
-Set `webapi.enable = true`, configure `webapi.password`, and optionally set `webapi.tls`, `webapi.certPath`, and `webapi.keyPath`.
+设置 `webapi.enable = true`，配置 `webapi.password`，并按需设置 `webapi.tls`、`webapi.certPath`、`webapi.keyPath`。
 
-### 5. Using scripts
+### 5. 使用脚本
 
-Scripts can be written inline or loaded from files. File paths in `scriptConfig.scripts[].content` are resolved relative to the config file.
+脚本既可以内联写，也可以引用文件。`scriptConfig.scripts[].content` 如果是文件路径，会按配置文件所在目录解析。
 
-Example:
+示例：
 
 ```yaml
 scriptConfig:
@@ -184,33 +184,33 @@ scriptConfig:
       content: resources/scripts/builtin/openai.js
 ```
 
-## Notes on compatibility
+## 兼容性说明
 
-- The project is intentionally compatible with the koipy 1.0 surface.
-- License activation is intentionally absent.
-- Temporary debug artifacts and extracted closed-package files are not part of the published repo.
+- 项目刻意保持与 koipy 1.0 的配置和行为面兼容。
+- license 激活逻辑不实现。
+- 发布仓库里不包含临时调试产物和解包出来的闭源文件。
 
-## Development
+## 开发
 
-Run tests:
+运行测试：
 
 ```bash
 cargo test
 ```
 
-Format, if needed:
+格式化代码：
 
 ```bash
 cargo fmt
 ```
 
-## Repository layout
+## 仓库结构
 
-- `src/`: implementation
-- `config.example.yaml`: sample config
-- `RUST_REWRITE_PROGRESS.md`: quantitative rewrite status
-- `Cargo.toml` / `Cargo.lock`: Rust package metadata
+- `src/`：实现代码
+- `config.example.yaml`：示例配置
+- `RUST_REWRITE_PROGRESS.md`：重构进度表
+- `Cargo.toml` / `Cargo.lock`：Rust 包元数据
 
-## Why the progress file exists
+## 为什么保留进度文件
 
-`RUST_REWRITE_PROGRESS.md` tracks the rewrite by subsystem and keeps the current quantified state visible while work continues.
+`RUST_REWRITE_PROGRESS.md` 用来按子系统量化当前重构状态，方便持续推进和对外说明进度。
