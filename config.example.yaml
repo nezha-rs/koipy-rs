@@ -1,0 +1,152 @@
+admin:
+  - 12345678
+network:
+  httpProxy: null
+  socks5Proxy: null
+  userAgent: ClashMetaForAndroid/2.8.9.Meta Mihomo/0.16
+subscription:
+  age:
+    enable: false
+    secretKey: ""
+    publicKey: ""
+    publicKeyHeader: X-Age-Public-Key
+bot:
+  api-id: 123456
+  api-hash: replace-me
+  bot-token: replace-me
+  proxy: null
+  ipv6: false
+  anti-group: false
+  strict-mode: false
+  bypassMode: false
+  parseMode: ""
+  disableNotification: false
+  autoResetCommands: false
+  cacheTime: 0
+  inviteGroup: ""
+  inviteBlacklistURL: ""
+  inviteBlacklistDomain: []
+  echoLimit: 0
+  script-text: ""
+  analyze-text: ""
+  speed-text: ""
+  commands:
+    - name: ping
+      enable: true
+      rule: ping
+      pin: true
+      text: PING test
+      attachToInvite: true
+image:
+  title: Koipy
+  font: ./resources/alibaba-Regular.ttf
+  speedFormat: byte/decimal
+  compress: false
+  endColorsSwitch: false
+  speedEndColorSwitch: false
+  invert: false
+  save: true
+  pixelThreshold: 2500x3500
+  logo: true
+  showUnsafeTips: true
+  emoji:
+    enable: true
+    source: TwemojiLocalSource
+  watermark:
+    enable: true
+    alpha: 32
+    angle: -16.0
+    color:
+      value: "#000000"
+      alpha: 32
+    text: FullTclash dev
+    size: 64
+    row-spacing: 32
+    shadow: false
+    start-y: 0
+    trace: false
+  color:
+    background:
+      script:
+        value: "#ffffff"
+      scriptTitle:
+        value: "#EAEAEA"
+    yes:
+      value: "#bee47e"
+      end-color: "#bee47e"
+    no:
+      value: "#ee6b73"
+      end-color: "#ee6b73"
+    na:
+      value: "#8d8b8e"
+      end-color: "#8d8b8e"
+    warn:
+      value: "#fcc43c"
+      end-color: "#fcc43c"
+    wait:
+      value: "#dcc7e1"
+      end-color: "#dcc7e1"
+runtime:
+  pingURL: https://www.gstatic.com/generate_204
+  speedFiles:
+    - https://dl.google.com/dl/android/studio/install/3.4.1.0/android-studio-ide-183.5522156-windows.exe
+  speedNodes: 300
+  speedThreads: 4
+  disableSubCvt: false
+  realtime: false
+  output: image
+  duration: 0
+  protectContent: false
+  dns:
+    enable: true
+    nameserver:
+      - 1.1.1.1
+subconverter:
+  address: 127.0.0.1:25500
+  enable: false
+  mode: subconverter
+  tls: false
+  template:
+    backend: "http://$Host:$Port/sub?target=$Target&new_name=true&url=$EncodedURL&insert=false&config=$EncodedConfig"
+  defaults:
+    target: ClashMeta
+scriptConfig:
+  scripts:
+    - type: gojajs
+      name: Netflix
+      rank: 0
+      content: |
+        function handler() {
+          return { text: '待解', background: '92,207,230' }
+        }
+webapi:
+  enable: false
+  address: 127.0.0.1:8080
+  password: ""
+  tls: false
+  certPath: ./certs/webapi.crt
+  keyPath: ./certs/webapi.key
+  allowOrigins:
+    - "*"
+  onMessage: null
+  onPreSend: null
+  onResult: null
+slaveConfig:
+  slaves:
+    - type: miaospeed
+      id: localmiaospeed
+      token: ZfffaQ4/E-7S
+      address: 127.0.0.1:8765
+      skipCertVerify: true
+      tls: true
+      buildtoken: MIAOKO4|580JxAo049R|GEnERAl|1X571R930|T0kEN
+      comment: 本地miaospeed后端
+      hidden: false
+      option:
+        downloadDuration: 8
+        downloadThreading: 4
+        downloadURL: https://dl.google.com/dl/android/studio/install/3.4.1.0/android-studio-ide-183.5522156-windows.exe
+        pingAddress: https://cp.cloudflare.com/generate_204
+        pingAverageOver: 3
+        stunURL: udp://stun.ideasip.com:3478
+        taskRetry: 3
