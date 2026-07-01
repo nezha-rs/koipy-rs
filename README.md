@@ -28,6 +28,52 @@ Release 页面提供 Linux amd64 发布包，里面包含二进制和 `resources
 
 搭建 bot 的最短路径就是：准备 Telegram `api-id`、`api-hash` 和 `bot-token`，再填好管理员 `admin` 与至少一个 `slaveConfig.slaves` 后端，然后按下面步骤启动。
 
+### 一键部署
+
+下面这段会把发布包下载安装到 `/opt/koipy-rs`，生成配置文件，并注册成 `systemd` 服务：
+
+```bash
+sudo bash -c '
+set -e
+apt-get update
+apt-get install -y wget tar
+install_dir=/opt/koipy-rs
+mkdir -p "$install_dir"
+cd /tmp
+wget -O koipy-rs-linux-amd64.tar.gz https://github.com/nezha-rs/koipy-rs/releases/latest/download/koipy-rs-linux-amd64.tar.gz
+tar -xzf koipy-rs-linux-amd64.tar.gz
+cp -r koipy-rs-linux-amd64/* "$install_dir"/
+chmod +x "$install_dir"/koipy-rs-linux-amd64
+if [ ! -f "$install_dir/config.yaml" ]; then
+  cp "$install_dir/config.example.yaml" "$install_dir/config.yaml"
+fi
+cat >/etc/systemd/system/koipy-rs.service <<EOF
+[Unit]
+Description=koipy-rs
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/koipy-rs
+ExecStart=/opt/koipy-rs/koipy-rs-linux-amd64 --config /opt/koipy-rs/config.yaml serve
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable --now koipy-rs
+'
+```
+
+部署完成后，编辑 `/opt/koipy-rs/config.yaml`，至少填好 `bot.api-id`、`bot.api-hash`、`bot.bot-token`、`admin` 和 `slaveConfig.slaves`，然后执行：
+
+```bash
+sudo systemctl restart koipy-rs
+sudo systemctl status koipy-rs
+```
+
 ### 1. 下载
 
 ```bash
