@@ -1,4 +1,5 @@
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
+use base64::Engine;
 
 use crate::cleaner::{ClashConfig, parse_subscription_url, site_name};
 use crate::config::{KoipyConfig, SlaveConfigEntry};
@@ -25,11 +26,16 @@ impl KoipyApp {
         if request.nocvt {
             subcvt.enable = false;
         }
-        let url = parse_subscription_url(&request.raw_target, &subcvt).ok_or_else(|| {
-            anyhow::anyhow!("could not parse a subscription URL or convertible protocol URI")
-        })?;
-        let collector = SubscriptionCollector::new(&self.config)?;
-        let raw = collector.fetch_config(&url).await?;
+        let (url, raw) = if let Some(bytes) = inline_subscription_bytes(&request.raw_target)? {
+            ("telegram-file".to_string(), bytes)
+        } else {
+            let url = parse_subscription_url(&request.raw_target, &subcvt).ok_or_else(|| {
+                anyhow::anyhow!("could not parse a subscription URL or convertible protocol URI")
+            })?;
+            let collector = SubscriptionCollector::new(&self.config)?;
+            let raw = collector.fetch_config(&url).await?;
+            (url, raw)
+        };
         let mut clash = ClashConfig::from_slice(&raw)?;
         if let Some(dns) = &self.config.runtime.dns {
             clash.inject_dns(dns);
@@ -55,8 +61,13 @@ impl KoipyApp {
             .filter(|name| !name.is_empty())
             .collect();
 
+        let name = if url == "telegram-file" {
+            url.clone()
+        } else {
+            site_name(&url)
+        };
         Ok(PreparedTask {
-            name: site_name(&url),
+            name,
             url,
             nodes: clash.proxies.clone(),
             node_count: clash.proxies.len(),
@@ -247,6 +258,16 @@ impl KoipyApp {
     }
 }
 
+fn inline_subscription_bytes(target: &str) -> Result<Option<Vec<u8>>> {
+    let Some(encoded) = target.strip_prefix("data:application/x-yaml;base64,") else {
+        return Ok(None);
+    };
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(encoded)
+        .context("invalid inline subscription data")?;
+    Ok(Some(bytes))
+}
+
 fn slave_display_name(config: &KoipyConfig, slave: &SlaveConfigEntry) -> String {
     match (slave.comment.trim().is_empty(), config.slave_config.show_id) {
         (true, _) => slave.id.clone(),
@@ -380,6 +401,37 @@ mod tests {
         assert_eq!(executed.table.rows[0].node_name, "Demo Node");
         assert_eq!(executed.table.rows[0].http_latency_ms, Some(88.0));
         assert!(executed.summary().contains("executed slaves: local"));
+    }
+
+    #[tokio::test]
+    async fn prepares_inline_subscription_data_from_telegram_file_target() {
+        let raw = b"proxies:\n  - name: Inline Node\n    type: ss\n";
+        let target = format!(
+            "data:application/x-yaml;base64,{}",
+            base64::engine::general_purpose::STANDARD.encode(raw)
+        );
+        let mut config = KoipyConfig::default();
+        config.slave_config.slaves = vec![SlaveConfigEntry {
+            id: "local".to_string(),
+            comment: "Local backend".to_string(),
+            hidden: false,
+            token: "token".to_string(),
+            r#type: SlaveType::MiaoSpeed,
+            address: "127.0.0.1:1".to_string(),
+            path: "/".to_string(),
+            proxy: None,
+            skip_cert_verify: true,
+            tls: false,
+            invoker: None,
+            buildtoken: None,
+            option: MiaoSpeedOption::default(),
+        }];
+        let prepared = KoipyApp::new(config)
+            .prepare_task(TaskRequest::new_url(TaskKind::Test, target))
+            .await
+            .expect("prepare inline subscription");
+        assert_eq!(prepared.name, "telegram-file");
+        assert_eq!(prepared.nodes[0].name, "Inline Node");
     }
 
     #[test]

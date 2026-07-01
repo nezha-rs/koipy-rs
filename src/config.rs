@@ -50,16 +50,26 @@ pub type UserId = serde_yaml::Value;
 impl KoipyConfig {
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
-        let raw = fs::read_to_string(path)
+        let raw = read_text_lossy(path)
             .with_context(|| format!("failed to read config {}", path.display()))?;
         let mut cfg: Self = serde_yaml::from_str(&raw)
             .with_context(|| format!("failed to parse YAML config {}", path.display()))?;
         cfg.user.extend(cfg.admin.iter().cloned());
         cfg.user.dedup();
         cfg.script_config.scripts.sort_by_key(|script| script.rank);
-        resolve_script_content_paths(&mut cfg, path.parent().unwrap_or_else(|| Path::new(".")))?;
+        cfg.script_config
+            .resolve_content_paths(path.parent().unwrap_or_else(|| Path::new(".")))?;
         cfg.source_path = Some(path.to_path_buf());
         Ok(cfg)
+    }
+
+    pub fn translation_value(&self, key: &str) -> Option<String> {
+        let path = self.translation_resource_path(self.translation.lang.trim())?;
+        read_translation_value(&path, key)
+    }
+
+    pub fn translation_resource_path(&self, lang: &str) -> Option<PathBuf> {
+        translation_resource_path_impl(self, lang)
     }
 
     pub fn save_to_source(&self) -> Result<()> {
@@ -127,6 +137,60 @@ impl KoipyConfig {
     }
 }
 
+fn read_text_lossy(path: &Path) -> Result<String> {
+    let bytes = fs::read(path)?;
+    let raw = String::from_utf8_lossy(&bytes);
+    Ok(repair_joined_yaml_lines(&raw))
+}
+
+fn repair_joined_yaml_lines(input: &str) -> String {
+    let mut output = String::new();
+    for line in input.lines() {
+        let mut segment = line.trim_end_matches('\r').to_string();
+        while let Some(pos) = joined_yaml_split_pos(&segment) {
+            output.push_str(segment[..pos].trim_end());
+            output.push('\n');
+            segment = segment[pos..].to_string();
+        }
+        output.push_str(&segment);
+        output.push('\n');
+    }
+    output
+}
+
+fn joined_yaml_split_pos(line: &str) -> Option<usize> {
+    let bytes = line.as_bytes();
+    let mut i = 1;
+    while i < bytes.len() {
+        if bytes[i] != b' ' || bytes[i - 1] == b' ' {
+            i += 1;
+            continue;
+        }
+        let start = i;
+        while i < bytes.len() && bytes[i] == b' ' {
+            i += 1;
+        }
+        if i - start >= 2 && looks_like_yaml_key_or_list(&line[i..]) {
+            return Some(start);
+        }
+    }
+    None
+}
+
+fn looks_like_yaml_key_or_list(value: &str) -> bool {
+    let value = value.trim_start();
+    if value.starts_with("- ") {
+        return true;
+    }
+    let Some((key, _)) = value.split_once(':') else {
+        return false;
+    };
+    !key.is_empty()
+        && key
+            .chars()
+            .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '_' | '-'))
+}
+
 fn yaml_value_is_id(value: &serde_yaml::Value, user_id: i64) -> bool {
     match value {
         serde_yaml::Value::Number(number) => number.as_i64() == Some(user_id),
@@ -135,8 +199,8 @@ fn yaml_value_is_id(value: &serde_yaml::Value, user_id: i64) -> bool {
     }
 }
 
-fn resolve_script_content_paths(cfg: &mut KoipyConfig, base_dir: &Path) -> Result<()> {
-    for script in &mut cfg.script_config.scripts {
+fn resolve_script_content_paths(scripts: &mut [Script], base_dir: &Path) -> Result<()> {
+    for script in scripts {
         let content = script.content.trim();
         if content.is_empty() || content.contains('\n') {
             continue;
@@ -158,6 +222,65 @@ fn resolve_script_content_paths(cfg: &mut KoipyConfig, base_dir: &Path) -> Resul
         }
     }
     Ok(())
+}
+
+fn translation_lang_candidates(lang: &str) -> Vec<String> {
+    let trimmed = lang.trim();
+    let primary = if trimmed.is_empty() {
+        default_lang()
+    } else {
+        trimmed.to_string()
+    };
+    let mut candidates = vec![
+        primary.clone(),
+        primary.replace('-', "_"),
+        primary.replace('_', "-"),
+        primary.to_lowercase(),
+        primary.replace('-', "_").to_lowercase(),
+        primary.replace('_', "-").to_lowercase(),
+    ];
+    if let Some((short, _)) = primary.split_once(['-', '_']) {
+        candidates.push(short.to_string());
+        candidates.push(short.to_lowercase());
+    }
+    candidates.dedup();
+    candidates
+}
+
+fn translation_resource_path_impl(cfg: &KoipyConfig, lang: &str) -> Option<PathBuf> {
+    let base_dir = cfg
+        .source_path
+        .as_ref()
+        .and_then(|path| path.parent())
+        .unwrap_or_else(|| Path::new("."));
+    for candidate in translation_lang_candidates(lang) {
+        if let Some(path) = cfg.translation.resources.get(&candidate) {
+            let path = Path::new(path);
+            return Some(if path.is_absolute() {
+                path.to_path_buf()
+            } else {
+                base_dir.join(path)
+            });
+        }
+    }
+    None
+}
+
+fn read_translation_value(path: &Path, key: &str) -> Option<String> {
+    let raw = fs::read_to_string(path).ok()?;
+    let value: serde_yaml::Value = serde_yaml::from_str(&raw).ok()?;
+    let mut current = &value;
+    for part in key.split('.') {
+        current = current
+            .as_mapping()?
+            .get(serde_yaml::Value::String(part.to_string()))?;
+    }
+    match current {
+        serde_yaml::Value::String(value) => Some(value.clone()),
+        serde_yaml::Value::Number(value) => Some(value.to_string()),
+        serde_yaml::Value::Bool(value) => Some(value.to_string()),
+        _ => None,
+    }
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -212,11 +335,82 @@ fn default_age_public_key_header() -> String {
     "X-Age-Public-Key".to_string()
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BotParseMode {
+    Default,
+    Markdown,
+    Html,
+    Disabled,
+    MarkdownV2,
+}
+
+impl Default for BotParseMode {
+    fn default() -> Self {
+        Self::Default
+    }
+}
+
+impl<'de> Deserialize<'de> for BotParseMode {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = serde_yaml::Value::deserialize(deserializer)?;
+        match value {
+            serde_yaml::Value::Null => Ok(Self::Default),
+            serde_yaml::Value::String(text) => {
+                let normalized = text.trim().to_ascii_uppercase().replace('_', "");
+                Ok(match normalized.as_str() {
+                    "DEFAULT" => Self::Default,
+                    "MARKDOWN" => Self::Markdown,
+                    "HTML" => Self::Html,
+                    "DISABLED" => Self::Disabled,
+                    "MARKDOWNV2" => Self::MarkdownV2,
+                    _ => Self::Markdown,
+                })
+            }
+            other => Err(serde::de::Error::custom(format!(
+                "bot.parseMode must be a string, got {other:?}"
+            ))),
+        }
+    }
+}
+
+impl Serialize for BotParseMode {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let text = match self {
+            Self::Default => "DEFAULT",
+            Self::Markdown => "MARKDOWN",
+            Self::Html => "HTML",
+            Self::Disabled => "DISABLED",
+            Self::MarkdownV2 => "MARKDOWNV2",
+        };
+        serializer.serialize_str(text)
+    }
+}
+
+impl BotParseMode {
+    pub fn as_option(&self) -> Option<String> {
+        match self {
+            Self::Default | Self::Disabled => None,
+            Self::Markdown => Some("Markdown".to_string()),
+            Self::Html => Some("HTML".to_string()),
+            Self::MarkdownV2 => Some("MarkdownV2".to_string()),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "camelCase")]
 pub struct BotConfig {
+    #[serde(rename = "api-id", alias = "apiId")]
     pub api_id: Option<i64>,
+    #[serde(rename = "api-hash", alias = "apiHash")]
     pub api_hash: Option<String>,
+    #[serde(rename = "bot-token", alias = "botToken")]
     pub bot_token: Option<String>,
     pub proxy: Option<String>,
     #[serde(default)]
@@ -230,7 +424,7 @@ pub struct BotConfig {
     #[serde(default, alias = "cacheTime")]
     pub cache_time: u64,
     #[serde(default, alias = "parseMode")]
-    pub parse_mode: String,
+    pub parse_mode: BotParseMode,
     #[serde(default, alias = "disableNotification")]
     pub disable_notification: bool,
     #[serde(default, alias = "autoResetCommands")]
@@ -251,11 +445,11 @@ pub struct BotConfig {
     pub invite_blacklist_domain: Vec<String>,
     #[serde(default, alias = "echoLimit", deserialize_with = "deserialize_f64")]
     pub echo_limit: f64,
-    #[serde(default)]
+    #[serde(default, alias = "scriptText")]
     pub script_text: String,
-    #[serde(default)]
+    #[serde(default, alias = "analyzeText")]
     pub analyze_text: String,
-    #[serde(default)]
+    #[serde(default, alias = "speedText")]
     pub speed_text: String,
     #[serde(default = "default_bar")]
     pub bar: String,
@@ -1154,6 +1348,12 @@ pub struct ScriptConfig {
     pub scripts: Vec<Script>,
 }
 
+impl ScriptConfig {
+    pub fn resolve_content_paths(&mut self, base_dir: &Path) -> Result<()> {
+        resolve_script_content_paths(&mut self.scripts, base_dir)
+    }
+}
+
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct Script {
     #[serde(default = "default_script_type")]
@@ -1162,7 +1362,7 @@ pub struct Script {
     pub name: String,
     #[serde(default)]
     pub rank: i64,
-    #[serde(default)]
+    #[serde(default, alias = "path")]
     pub content: String,
 }
 
@@ -1170,7 +1370,7 @@ fn default_script_type() -> String {
     "gojajs".to_string()
 }
 
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TranslationConfig {
     #[serde(default = "default_lang")]
     pub lang: String,
@@ -1180,6 +1380,15 @@ pub struct TranslationConfig {
 
 fn default_lang() -> String {
     "zh-CN".to_string()
+}
+
+impl Default for TranslationConfig {
+    fn default() -> Self {
+        Self {
+            lang: default_lang(),
+            resources: BTreeMap::new(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -1201,37 +1410,77 @@ pub struct RuleConfig {
     pub runtime: Option<RuntimeConfig>,
 }
 
-#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum SortType {
     #[default]
-    #[serde(alias = "订阅原序")]
     Origin,
-    #[serde(alias = "HTTP升序")]
     HttpAsc,
-    #[serde(alias = "HTTP降序")]
     HttpDesc,
-    #[serde(alias = "平均速度升序")]
+    RttAsc,
+    RttDesc,
     AvgSpeedAsc,
-    #[serde(alias = "平均速度降序")]
     AvgSpeedDesc,
-    #[serde(alias = "最大速度升序")]
     MaxSpeedAsc,
-    #[serde(alias = "最大速度降序")]
     MaxSpeedDesc,
 }
 
 impl SortType {
     pub fn parse_text(value: &str) -> Option<Self> {
-        match value {
-            "订阅原序" | "origin" => Some(Self::Origin),
-            "HTTP升序" | "http" => Some(Self::HttpAsc),
-            "HTTP降序" | "rhttp" => Some(Self::HttpDesc),
-            "平均速度升序" | "aspeed" => Some(Self::AvgSpeedAsc),
-            "平均速度降序" | "arspeed" => Some(Self::AvgSpeedDesc),
-            "最大速度升序" | "mspeed" => Some(Self::MaxSpeedAsc),
-            "最大速度降序" | "mrspeed" => Some(Self::MaxSpeedDesc),
+        match value.trim().to_ascii_lowercase().as_str() {
+            "订阅原序" | "origin" | "o" => Some(Self::Origin),
+            "http升序" | "http" | "h" => Some(Self::HttpAsc),
+            "http降序" | "http倒序" | "rhttp" | "rh" => Some(Self::HttpDesc),
+            "rtt升序" | "rtt" | "rt" => Some(Self::RttAsc),
+            "rtt降序" | "rrtt" | "rr" => Some(Self::RttDesc),
+            "平均速度升序" | "aspeed" | "as" => Some(Self::AvgSpeedAsc),
+            "平均速度降序" | "平均速度倒序" | "arspeed" | "ras" | "raspeed" => {
+                Some(Self::AvgSpeedDesc)
+            }
+            "最大速度升序" | "mspeed" | "ms" => Some(Self::MaxSpeedAsc),
+            "最大速度降序" | "最大速度倒序" | "mrspeed" | "rms" | "rmspeed" => {
+                Some(Self::MaxSpeedDesc)
+            }
             _ => None,
         }
+    }
+
+    pub fn closed_text(self) -> &'static str {
+        match self {
+            Self::Origin => "订阅原序",
+            Self::HttpAsc => "HTTP升序",
+            Self::HttpDesc => "HTTP降序",
+            Self::RttAsc => "RTT升序",
+            Self::RttDesc => "RTT降序",
+            Self::AvgSpeedAsc => "平均速度升序",
+            Self::AvgSpeedDesc => "平均速度降序",
+            Self::MaxSpeedAsc => "最大速度升序",
+            Self::MaxSpeedDesc => "最大速度降序",
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for SortType {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = serde_yaml::Value::deserialize(deserializer)?;
+        match value {
+            serde_yaml::Value::Null => Ok(Self::default()),
+            serde_yaml::Value::String(value) => Ok(Self::parse_text(&value).unwrap_or_default()),
+            other => Err(serde::de::Error::custom(format!(
+                "sort must be a string, got {other:?}"
+            ))),
+        }
+    }
+}
+
+impl Serialize for SortType {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.closed_text())
     }
 }
 
@@ -1356,7 +1605,7 @@ runtime:
         )
         .expect("config");
         assert!(cfg.bot.bypass_mode);
-        assert_eq!(cfg.bot.parse_mode, "MarkdownV2");
+        assert_eq!(cfg.bot.parse_mode, BotParseMode::MarkdownV2);
         assert!(cfg.bot.disable_notification);
         assert!(cfg.bot.auto_reset_commands);
         assert_eq!(cfg.bot.cache_time, 60);
@@ -1375,10 +1624,7 @@ runtime:
         assert!(cfg.runtime.realtime);
         assert_eq!(cfg.runtime.output, "json");
         assert_eq!(cfg.runtime.duration, 12);
-        assert_eq!(
-            cfg.runtime.dns.as_ref().map(|dns| dns.enable),
-            Some(true)
-        );
+        assert_eq!(cfg.runtime.dns.as_ref().map(|dns| dns.enable), Some(true));
         assert_eq!(
             cfg.runtime.dns.as_ref().map(|dns| dns.nameserver.clone()),
             Some(vec!["1.1.1.1".to_string()])
@@ -1414,6 +1660,33 @@ runtime:
         .expect("config");
         assert!(cfg.runtime.entrance.enabled());
         assert_eq!(cfg.runtime.entrance.mode(), Some("ip"));
+    }
+
+    #[test]
+    fn sort_type_matches_closed_package_text_round_trip() {
+        let cfg: KoipyConfig = serde_yaml::from_str(
+            r#"
+runtime:
+  sort: HTTP升序
+rules:
+  - name: speed
+    sort: rms
+"#,
+        )
+        .expect("config");
+
+        assert_eq!(cfg.runtime.sort, SortType::HttpAsc);
+        assert_eq!(cfg.rules[0].sort, SortType::MaxSpeedDesc);
+        assert_eq!(
+            SortType::parse_text("raspeed"),
+            Some(SortType::AvgSpeedDesc)
+        );
+        assert_eq!(SortType::parse_text("RTT降序"), Some(SortType::RttDesc));
+
+        let serialized = serde_yaml::to_string(&cfg).expect("serialize");
+        assert!(serialized.contains("sort: HTTP升序"));
+        assert!(serialized.contains("sort: 最大速度降序"));
+        assert!(!serialized.contains("MaxSpeedDesc"));
     }
 
     #[test]
@@ -1528,6 +1801,55 @@ rules:
                 .trim()
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn serializes_bot_config_using_closed_package_field_names() {
+        let mut cfg = KoipyConfig::default();
+        cfg.bot.api_id = Some(123456);
+        cfg.bot.api_hash = Some("abcdef".to_string());
+        cfg.bot.bot_token = Some("token".to_string());
+        cfg.bot.script_text = "progress".to_string();
+        cfg.bot.analyze_text = "analyze".to_string();
+        cfg.bot.speed_text = "speed".to_string();
+
+        let serialized = serde_yaml::to_string(&cfg).expect("serialize");
+        assert!(serialized.contains("api-id: 123456"));
+        assert!(serialized.contains("api-hash: abcdef"));
+        assert!(serialized.contains("bot-token: token"));
+        assert!(serialized.contains("scriptText: progress"));
+        assert!(serialized.contains("analyzeText: analyze"));
+        assert!(serialized.contains("speedText: speed"));
+    }
+
+    #[test]
+    fn resolves_script_content_from_external_path() {
+        let temp_dir = std::env::temp_dir().join(format!(
+            "koipy-rs-script-path-{}",
+            std::process::id()
+        ));
+        std::fs::create_dir_all(&temp_dir).expect("temp dir");
+        let script_path = temp_dir.join("demo.js");
+        std::fs::write(&script_path, "function handler(){return {text:'ok'}}").expect("write");
+
+        let mut cfg: KoipyConfig = serde_yaml::from_str(&format!(
+            r#"
+scriptConfig:
+  scripts:
+    - name: Demo
+      content: {}
+"#,
+            script_path.display()
+        ))
+        .expect("config");
+
+        cfg.script_config
+            .resolve_content_paths(&temp_dir)
+            .expect("resolve");
+        assert!(cfg.script_config.scripts[0].content.contains("handler"));
+
+        let _ = std::fs::remove_file(&script_path);
+        let _ = std::fs::remove_dir_all(&temp_dir);
     }
 
     #[test]

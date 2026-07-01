@@ -60,6 +60,8 @@ impl TestResultTable {
             SortType::HttpDesc => self
                 .rows
                 .sort_by(compare_opt_f64(|row| row.http_latency_ms, true)),
+            SortType::RttAsc => self.rows.sort_by(compare_opt_f64(|row| row.rtt_ms, false)),
+            SortType::RttDesc => self.rows.sort_by(compare_opt_f64(|row| row.rtt_ms, true)),
             SortType::AvgSpeedAsc => self
                 .rows
                 .sort_by(compare_opt_f64(|row| row.avg_speed_bytes, false)),
@@ -363,5 +365,28 @@ mod tests {
             Some("SG")
         );
         assert!(first.raw.is_array());
+    }
+
+    #[test]
+    fn sorts_by_rtt_latency() {
+        let mut table = TestResultTable {
+            rows: vec![
+                TestResultRow {
+                    node_name: "slow".to_string(),
+                    rtt_ms: Some(120.0),
+                    ..Default::default()
+                },
+                TestResultRow {
+                    node_name: "fast".to_string(),
+                    rtt_ms: Some(20.0),
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+        table.sort(SortType::RttAsc);
+        assert_eq!(table.rows[0].node_name, "fast");
+        table.sort(SortType::RttDesc);
+        assert_eq!(table.rows[0].node_name, "slow");
     }
 }

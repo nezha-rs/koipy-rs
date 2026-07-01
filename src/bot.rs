@@ -271,7 +271,7 @@ impl BotRuntime {
                         .send_message_markup(
                             message.chat.id,
                             "Select result sorting",
-                            sort_keyboard(&key),
+                            sort_keyboard(config, &key),
                             &SendOptions::from_config(config),
                         )
                         .await?;
@@ -283,11 +283,12 @@ impl BotRuntime {
                     .insert(user_id, request.clone());
                 store.save()?;
                 let realtime_message = if request.realtime {
+                    let realtime_start = progress_message_text(config, "realtime2");
                     Some(
                         self.api
                             .send_message(
                                 message.chat.id,
-                                "MiaoSpeed realtime: starting",
+                                &realtime_start,
                                 &SendOptions::from_config(config),
                             )
                             .await?,
@@ -301,6 +302,9 @@ impl BotRuntime {
                     let send_options = SendOptions::from_config(config);
                     let chat_id = message.chat.id;
                     let slave_name = realtime_slave_name(config, &request);
+                    let progress_slave = progress_message_text(config, "progress-4");
+                    let progress_queue = progress_message_text(config, "progress-5");
+                    let progress_progress = progress_message_text(config, "progress-6");
                     let updater = tokio::spawn(async move {
                         let mut last_count = 0;
                         while let Some(progress) = rx.recv().await {
@@ -310,7 +314,12 @@ impl BotRuntime {
                                     .edit_message_text(
                                         chat_id,
                                         progress_message.message_id,
-                                        &progress.render_text(&slave_name),
+                                        &progress.render_text(
+                                            &slave_name,
+                                            &progress_slave,
+                                            &progress_queue,
+                                            &progress_progress,
+                                        ),
                                         None,
                                         &send_options,
                                     )
@@ -324,12 +333,13 @@ impl BotRuntime {
                         })
                         .await?;
                     updater.abort();
+                    let realtime_done = progress_message_text(config, "realtime");
                     let _ = self
                         .api
                         .edit_message_text(
                             message.chat.id,
                             progress_message.message_id,
-                            "MiaoSpeed realtime: rendering final result",
+                            &realtime_done,
                             None,
                             &SendOptions::from_config(config),
                         )
@@ -688,7 +698,7 @@ impl BotRuntime {
                     .send_message_markup(
                         message.chat.id,
                         &demo_text(),
-                        demo_keyboard(),
+                        demo_keyboard(config),
                         &SendOptions::from_config(config),
                     )
                     .await?;
@@ -702,9 +712,9 @@ impl BotRuntime {
             BotCommand::SetCommands if is_admin => {
                 let commands = pinned_bot_commands(config);
                 if commands.is_empty() {
-                    return Ok(Some(
-                        "Command not enabled, please check config or bypass mode.".to_string(),
-                    ));
+                    return Ok(Some(config.translation_value("setcmd3").unwrap_or_else(
+                        || "Command not enabled, please check config or bypass mode.".to_string(),
+                    )));
                 }
                 self.api.set_my_commands(&commands).await?;
                 Ok(Some(format!(
@@ -765,10 +775,10 @@ impl BotRuntime {
                 store.save()?;
                 Ok(Some(format!("Night shift: {status}")))
             }
-            BotCommand::Disabled(name) => Ok(Some(format!("`{name}` command has been disabled"))),
-            BotCommand::Unknown(name) if config.bot.bypass_mode => Ok(Some(format!(
-                "Bypass mode enabled. Built-in commands are disabled; only configured custom commands are available. ({name})"
-            ))),
+            BotCommand::Disabled(name) => Ok(Some(disabled_command_message(config, &name))),
+            BotCommand::Unknown(name) if config.bot.bypass_mode => {
+                Ok(Some(bypass_mode_message(config, &name)))
+            }
             BotCommand::Unknown(name) => Ok(Some(format!("Unknown command: {name}"))),
             _ => Ok(Some("Permission denied".to_string())),
         }
@@ -858,8 +868,9 @@ impl BotRuntime {
                     .await?;
             }
             "demo:image" => {
+                let generating = localized_text(&config, "demo3", "Generating...");
                 self.api
-                    .answer_callback_query(&callback.id, "Generating...")
+                    .answer_callback_query(&callback.id, &generating)
                     .await?;
                 let rendered = ResultRenderer::new(config.clone()).render_table_with_context(
                     &demo_result_table(),
@@ -890,8 +901,9 @@ impl BotRuntime {
                     ),
                 );
                 store.save()?;
+                let waiting = localized_text(&config, "invite-10", "Waiting for subscription link");
                 self.api
-                    .answer_callback_query(&callback.id, "Waiting for subscription link")
+                    .answer_callback_query(&callback.id, &waiting)
                     .await?;
                 self.api
                     .edit_message_text(
@@ -906,8 +918,9 @@ impl BotRuntime {
             data if data.starts_with("task:cancel:") => {
                 let key = data.strip_prefix("task:cancel:").unwrap_or_default();
                 if !strict_callback_allowed(&config, store, key, user_id) {
+                    let denied = localized_text(&config, "realtime3", "Permission denied");
                     self.api
-                        .answer_callback_query(&callback.id, "Permission denied")
+                        .answer_callback_query(&callback.id, &denied)
                         .await?;
                     return Ok(());
                 }
@@ -936,14 +949,16 @@ impl BotRuntime {
                     .strip_prefix("task:slave:")
                     .and_then(|rest| rest.rsplit_once(':'))
                 else {
+                    let bad_callback = localized_text(&config, "error-8", "Bad callback");
                     self.api
-                        .answer_callback_query(&callback.id, "Bad callback")
+                        .answer_callback_query(&callback.id, &bad_callback)
                         .await?;
                     return Ok(());
                 };
                 if !strict_callback_allowed(&config, store, key, user_id) {
+                    let denied = localized_text(&config, "realtime3", "Permission denied");
                     self.api
-                        .answer_callback_query(&callback.id, "Permission denied")
+                        .answer_callback_query(&callback.id, &denied)
                         .await?;
                     return Ok(());
                 }
@@ -964,8 +979,8 @@ impl BotRuntime {
                     .edit_message_text(
                         message.chat.id,
                         message.message_id,
-                        "Select result sorting",
-                        Some(sort_keyboard(key)),
+                        &localized_text(&config, "sort-select", "Select result sorting"),
+                        Some(sort_keyboard(&config, key)),
                         &SendOptions::from_config(&config),
                     )
                     .await?;
@@ -978,14 +993,16 @@ impl BotRuntime {
                     .strip_prefix("task:sort:")
                     .and_then(|rest| rest.rsplit_once(':'))
                 else {
+                    let bad_callback = localized_text(&config, "error-8", "Bad callback");
                     self.api
-                        .answer_callback_query(&callback.id, "Bad callback")
+                        .answer_callback_query(&callback.id, &bad_callback)
                         .await?;
                     return Ok(());
                 };
                 if !strict_callback_allowed(&config, store, key, user_id) {
+                    let denied = localized_text(&config, "realtime3", "Permission denied");
                     self.api
-                        .answer_callback_query(&callback.id, "Permission denied")
+                        .answer_callback_query(&callback.id, &denied)
                         .await?;
                     return Ok(());
                 }
@@ -1014,7 +1031,7 @@ impl BotRuntime {
                     .edit_message_text(
                         message.chat.id,
                         message.message_id,
-                        "Select script set",
+                        &localized_text(&config, "script-select", "Select script set"),
                         Some(script_keyboard(key, &config, store, 0)),
                         &SendOptions::from_config(&config),
                     )
@@ -1028,14 +1045,16 @@ impl BotRuntime {
                     .strip_prefix("task:scripts:")
                     .and_then(|rest| rest.rsplit_once(':'))
                 else {
+                    let bad_callback = localized_text(&config, "error-8", "Bad callback");
                     self.api
-                        .answer_callback_query(&callback.id, "Bad callback")
+                        .answer_callback_query(&callback.id, &bad_callback)
                         .await?;
                     return Ok(());
                 };
                 if !strict_callback_allowed(&config, store, key, user_id) {
+                    let denied = localized_text(&config, "realtime3", "Permission denied");
                     self.api
-                        .answer_callback_query(&callback.id, "Permission denied")
+                        .answer_callback_query(&callback.id, &denied)
                         .await?;
                     return Ok(());
                 }
@@ -1063,7 +1082,7 @@ impl BotRuntime {
                         .edit_message_text(
                             message.chat.id,
                             message.message_id,
-                            "Running task...",
+                            &localized_text(&config, "script-ok", "Running task..."),
                             None,
                             &SendOptions::from_config(&config),
                         )
@@ -1133,7 +1152,7 @@ impl BotRuntime {
                     .edit_message_text(
                         message.chat.id,
                         message.message_id,
-                        "Select scripts",
+                        &localized_text(&config, "script-select", "Select scripts"),
                         Some(script_keyboard(key, &config, store, page)),
                         &SendOptions::from_config(&config),
                     )
@@ -1144,11 +1163,15 @@ impl BotRuntime {
             }
             _ => {
                 let answer = if known_callback_namespace(&data) {
-                    "Permission denied"
+                    localized_text(&config, "realtime3", "Permission denied")
                 } else {
-                    UNKNOWN_CALLBACK
+                    config
+                        .translation_value("unknown-callback")
+                        .unwrap_or_else(|| UNKNOWN_CALLBACK.to_string())
                 };
-                self.api.answer_callback_query(&callback.id, answer).await?;
+                self.api
+                    .answer_callback_query(&callback.id, &answer)
+                    .await?;
             }
         }
         Ok(())
@@ -1323,6 +1346,48 @@ fn realtime_slave_name(config: &KoipyConfig, request: &TaskRequest) -> String {
         })
         .map(|slave| slave_display_name(config, slave))
         .unwrap_or_else(|| "default".to_string())
+}
+
+fn progress_message_text(config: &KoipyConfig, key: &str) -> String {
+    config.translation_value(key).unwrap_or_else(|| match key {
+        "realtime2" => "✔️Real-time Rendering".to_string(),
+        "realtime" => "❌Real-time Rendering".to_string(),
+        "progress-4" => "⚙️Slave:".to_string(),
+        "progress-5" => "🎉Queue size:".to_string(),
+        "progress-6" => "Progress:".to_string(),
+        _ => key.to_string(),
+    })
+}
+
+fn localized_text(config: &KoipyConfig, key: &str, fallback: &str) -> String {
+    config
+        .translation_value(key)
+        .unwrap_or_else(|| fallback.to_string())
+}
+
+fn localized_template(config: &KoipyConfig, key: &str, fallback: &str, args: &[&str]) -> String {
+    let mut text = localized_text(config, key, fallback);
+    for arg in args {
+        text = text.replacen("{}", arg, 1);
+    }
+    text
+}
+
+fn disabled_command_message(config: &KoipyConfig, name: &str) -> String {
+    localized_template(
+        config,
+        "command-disabled",
+        "`{}` command has been disabled",
+        &[name],
+    )
+}
+
+fn bypass_mode_message(config: &KoipyConfig, name: &str) -> String {
+    config.translation_value("bypass").unwrap_or_else(|| {
+        format!(
+            "Bypass mode enabled. Built-in commands are disabled; only configured custom commands are available. ({name})"
+        )
+    })
 }
 
 fn slave_display_name(config: &KoipyConfig, slave: &crate::config::SlaveConfigEntry) -> String {
@@ -1862,23 +1927,8 @@ fn authorization_target_user_id(parsed: i64, message: &TelegramMessage) -> Resul
 
 fn switch_translation_language(config: &mut KoipyConfig, lang: &str) -> Result<()> {
     let lang = lang.trim();
-    let Some(resource) = config.translation.resources.get(lang) else {
+    let Some(path) = config.translation_resource_path(lang) else {
         bail!("Failed to switch language, language pack file for {lang} not found");
-    };
-    let resource = resource.trim();
-    if resource.is_empty() {
-        bail!("Failed to switch language, language pack file for {lang} not found");
-    }
-    let path = std::path::Path::new(resource);
-    let path = if path.is_absolute() {
-        path.to_path_buf()
-    } else {
-        config
-            .source_path
-            .as_ref()
-            .and_then(|source| source.parent())
-            .unwrap_or_else(|| std::path::Path::new("."))
-            .join(path)
     };
     if !path.is_file() {
         bail!("Failed to switch language, language pack file for {lang} not found");
@@ -2777,7 +2827,7 @@ struct SendOptions {
 impl SendOptions {
     fn from_config(config: &KoipyConfig) -> Self {
         Self {
-            parse_mode: telegram_parse_mode(&config.bot.parse_mode),
+            parse_mode: config.bot.parse_mode.as_option(),
             protect_content: config.runtime.protect_content,
             disable_notification: config.bot.disable_notification,
         }
@@ -2820,16 +2870,6 @@ fn bot_commands_text(commands: &[TelegramBotCommand]) -> String {
         .map(|command| format!("/{} - {}", command.command, command.description))
         .collect::<Vec<_>>()
         .join("\n")
-}
-
-fn telegram_parse_mode(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    match trimmed.to_ascii_uppercase().as_str() {
-        "" | "DEFAULT" | "DISABLED" | "NONE" | "OFF" => None,
-        "MARKDOWN" => Some("Markdown".to_string()),
-        "HTML" => Some("HTML".to_string()),
-        _ => Some(trimmed.to_string()),
-    }
 }
 
 fn telegram_payload(mut payload: serde_json::Value, options: &SendOptions) -> serde_json::Value {
@@ -3315,12 +3355,15 @@ fn panel_keyboard() -> InlineKeyboardMarkup {
     }
 }
 
-fn demo_keyboard() -> InlineKeyboardMarkup {
+fn demo_keyboard(config: &KoipyConfig) -> InlineKeyboardMarkup {
     InlineKeyboardMarkup {
         inline_keyboard: vec![vec![
-            InlineKeyboardButton::callback("Generate drawing demo", "demo:image"),
+            InlineKeyboardButton::callback(
+                localized_text(config, "demo2", "Generate drawing demo"),
+                "demo:image",
+            ),
             InlineKeyboardButton::url(
-                "Open color palette",
+                localized_text(config, "demo4", "Open color palette"),
                 "https://htmlcolorcodes.com/color-picker/",
             ),
         ]],
@@ -3432,7 +3475,7 @@ fn slave_keyboard(config: &KoipyConfig, key: &str) -> InlineKeyboardMarkup {
         )]);
     }
     rows.push(vec![InlineKeyboardButton::callback(
-        TASK_CANCEL_BUTTON,
+        localized_text(config, "b-cancel", TASK_CANCEL_BUTTON),
         format!("task:cancel:{key}"),
     )]);
     InlineKeyboardMarkup {
@@ -3440,15 +3483,17 @@ fn slave_keyboard(config: &KoipyConfig, key: &str) -> InlineKeyboardMarkup {
     }
 }
 
-fn sort_keyboard(key: &str) -> InlineKeyboardMarkup {
+fn sort_keyboard(config: &KoipyConfig, key: &str) -> InlineKeyboardMarkup {
     let sorts = [
-        ("Original", "origin"),
-        ("HTTP asc", "http"),
-        ("HTTP desc", "rhttp"),
-        ("Avg speed asc", "aspeed"),
-        ("Avg speed desc", "arspeed"),
-        ("Max speed asc", "mspeed"),
-        ("Max speed desc", "mrspeed"),
+        ("b-origin", "Original", "origin"),
+        ("b-http", "HTTP asc", "http"),
+        ("b-rhttp", "HTTP desc", "rhttp"),
+        ("b-rtt", "RTT asc", "rtt"),
+        ("b-rrtt", "RTT desc", "rrtt"),
+        ("b-aspeed", "Avg speed asc", "aspeed"),
+        ("b-arspeed", "Avg speed desc", "arspeed"),
+        ("b-mspeed", "Max speed asc", "mspeed"),
+        ("b-mrspeed", "Max speed desc", "mrspeed"),
     ];
     InlineKeyboardMarkup {
         inline_keyboard: sorts
@@ -3456,16 +3501,16 @@ fn sort_keyboard(key: &str) -> InlineKeyboardMarkup {
             .map(|chunk| {
                 chunk
                     .iter()
-                    .map(|(text, value)| {
+                    .map(|(label_key, fallback, value)| {
                         InlineKeyboardButton::callback(
-                            (*text).to_string(),
+                            localized_text(config, label_key, fallback),
                             format!("task:sort:{key}:{value}"),
                         )
                     })
                     .collect()
             })
             .chain(std::iter::once(vec![InlineKeyboardButton::callback(
-                TASK_CANCEL_BUTTON,
+                localized_text(config, "b-cancel", TASK_CANCEL_BUTTON),
                 format!("task:cancel:{key}"),
             )]))
             .collect(),
@@ -3518,24 +3563,36 @@ fn script_keyboard(
         })
         .collect();
     rows.push(vec![
-        InlineKeyboardButton::callback("Prev", format!("task:scripts:{key}:prev")),
         InlineKeyboardButton::callback(
-            format!("Page {}", page + 1),
+            localized_text(config, "page1", "Prev"),
+            format!("task:scripts:{key}:prev"),
+        ),
+        InlineKeyboardButton::callback(
+            format!("{} {}", localized_text(config, "page", "Page"), page + 1),
             format!("task:scripts:{key}:noop"),
         ),
-        InlineKeyboardButton::callback("Next", format!("task:scripts:{key}:next")),
+        InlineKeyboardButton::callback(
+            localized_text(config, "page2", "Next"),
+            format!("task:scripts:{key}:next"),
+        ),
     ]);
     rows.push(vec![
-        InlineKeyboardButton::callback("All", format!("task:scripts:{key}:all")),
-        InlineKeyboardButton::callback("Reverse", format!("task:scripts:{key}:reverse")),
+        InlineKeyboardButton::callback(
+            localized_text(config, "b-all", "All"),
+            format!("task:scripts:{key}:all"),
+        ),
+        InlineKeyboardButton::callback(
+            localized_text(config, "b-reverse", "Reverse"),
+            format!("task:scripts:{key}:reverse"),
+        ),
         InlineKeyboardButton::callback("None", format!("task:scripts:{key}:none")),
     ]);
     rows.push(vec![InlineKeyboardButton::callback(
-        "OK",
+        localized_text(config, "b-ok2", "OK"),
         format!("task:scripts:{key}:ok"),
     )]);
     rows.push(vec![InlineKeyboardButton::callback(
-        TASK_CANCEL_BUTTON,
+        localized_text(config, "b-cancel", TASK_CANCEL_BUTTON),
         format!("task:cancel:{key}"),
     )]);
     InlineKeyboardMarkup {
@@ -3546,10 +3603,21 @@ fn script_keyboard(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::BotParseMode;
     use std::sync::Arc as StdArc;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::TcpListener;
     use tokio::sync::Mutex;
+
+    fn closed_zh_config() -> KoipyConfig {
+        let mut config = KoipyConfig::default();
+        config.translation.lang = "zh_CN".to_string();
+        config.translation.resources.insert(
+            "zh-CN".to_string(),
+            "./resources/localization/zh-CN.yml".to_string(),
+        );
+        config
+    }
 
     #[test]
     fn parses_unimplemented_documented_commands() {
@@ -3778,22 +3846,23 @@ mod tests {
         config
             .translation
             .resources
+            .insert("zh-CN".to_string(), "en-us.yml".to_string());
+        config
+            .translation
+            .resources
             .insert("missing".to_string(), "missing.yml".to_string());
 
         switch_translation_language(&mut config, "en-us").expect("switch");
         assert_eq!(config.translation.lang, "en-us");
+        switch_translation_language(&mut config, "zh_CN").expect("switch alias");
+        assert_eq!(config.translation.lang, "zh_CN");
         assert!(
             switch_translation_language(&mut config, "missing")
                 .expect_err("missing")
                 .to_string()
                 .contains("language pack file for missing not found")
         );
-        assert!(
-            switch_translation_language(&mut config, "zh-CN")
-                .expect_err("unconfigured")
-                .to_string()
-                .contains("language pack file for zh-CN not found")
-        );
+        assert_eq!(config.translation_resource_path("zh_CN").is_some(), true);
 
         let _ = std::fs::remove_dir_all(dir);
     }
@@ -3813,7 +3882,8 @@ mod tests {
 
     #[test]
     fn demo_keyboard_has_drawing_and_palette_actions() {
-        let keyboard = demo_keyboard();
+        let config = closed_zh_config();
+        let keyboard = demo_keyboard(&config);
         let buttons: Vec<_> = keyboard.inline_keyboard.into_iter().flatten().collect();
 
         assert!(
@@ -3822,10 +3892,16 @@ mod tests {
                 .any(|button| button.callback_data.as_deref() == Some("demo:image"))
         );
         assert!(buttons.iter().any(|button| {
+            button.text == localized_text(&config, "demo2", "Generate drawing demo")
+        }));
+        assert!(buttons.iter().any(|button| {
             button
                 .url
                 .as_deref()
                 .is_some_and(|url| url.contains("color-picker"))
+        }));
+        assert!(buttons.iter().any(|button| {
+            button.text == localized_text(&config, "demo4", "Open color palette")
         }));
     }
 
@@ -3970,6 +4046,64 @@ mod tests {
         assert_eq!(
             BotCommandRouter::parse_with_custom("/off https://example.com/sub", &commands, &[]),
             BotCommand::Disabled("off".to_string())
+        );
+    }
+
+    #[test]
+    fn disabled_and_bypass_messages_use_closed_package_translation_resources() {
+        let mut config = KoipyConfig::default();
+        config.translation.lang = "zh_CN".to_string();
+        config.translation.resources.insert(
+            "zh-CN".to_string(),
+            "./resources/localization/zh-CN.yml".to_string(),
+        );
+
+        assert_eq!(
+            disabled_command_message(&config, "off"),
+            "`off` 指令已被禁用"
+        );
+        assert_eq!(
+            bypass_mode_message(&config, "test"),
+            "旁路模式已启用，bot所有内置指令已被禁用，仅可以使用配置中的自定义指令~"
+        );
+    }
+
+    #[test]
+    fn callback_flow_messages_use_closed_package_translation_resources() {
+        let mut config = KoipyConfig::default();
+        config.translation.lang = "zh_CN".to_string();
+        config.translation.resources.insert(
+            "zh-CN".to_string(),
+            "./resources/localization/zh-CN.yml".to_string(),
+        );
+
+        assert_eq!(
+            localized_text(&config, "demo3", "Generating..."),
+            "正在生成..."
+        );
+        assert_eq!(
+            localized_text(&config, "invite-10", "Waiting for subscription link"),
+            "⏳正在等待上传订阅链接~"
+        );
+        assert_eq!(
+            localized_text(&config, "realtime3", "Permission denied"),
+            "❌没有权限执行此操作"
+        );
+        assert_eq!(
+            localized_text(&config, "error-8", "Bad callback"),
+            "❌非法参数，请检查!"
+        );
+        assert_eq!(
+            localized_text(&config, "sort-select", "Select result sorting"),
+            "请选择排序方式: \n"
+        );
+        assert_eq!(
+            localized_text(&config, "script-select", "Select scripts"),
+            "请选择要测试的脚本名称: \n"
+        );
+        assert_eq!(
+            localized_text(&config, "script-ok", "Running task..."),
+            "⏳正在生成测试任务......"
         );
     }
 
@@ -4246,25 +4380,25 @@ mod tests {
     fn parse_mode_config_matches_closed_package_enum_values() {
         let mut config = KoipyConfig::default();
 
-        config.bot.parse_mode = "DEFAULT".to_string();
+        config.bot.parse_mode = BotParseMode::Default;
         assert_eq!(SendOptions::from_config(&config).parse_mode, None);
 
-        config.bot.parse_mode = "DISABLED".to_string();
+        config.bot.parse_mode = BotParseMode::Disabled;
         assert_eq!(SendOptions::from_config(&config).parse_mode, None);
 
-        config.bot.parse_mode = "MARKDOWN".to_string();
+        config.bot.parse_mode = BotParseMode::Markdown;
         assert_eq!(
             SendOptions::from_config(&config).parse_mode.as_deref(),
             Some("Markdown")
         );
 
-        config.bot.parse_mode = "HTML".to_string();
+        config.bot.parse_mode = BotParseMode::Html;
         assert_eq!(
             SendOptions::from_config(&config).parse_mode.as_deref(),
             Some("HTML")
         );
 
-        config.bot.parse_mode = "MarkdownV2".to_string();
+        config.bot.parse_mode = BotParseMode::MarkdownV2;
         assert_eq!(
             SendOptions::from_config(&config).parse_mode.as_deref(),
             Some("MarkdownV2")
@@ -4958,7 +5092,8 @@ plain.example/list
 
     #[test]
     fn task_keyboards_have_callbacks() {
-        let sort = sort_keyboard("1:2");
+        let mut config = closed_zh_config();
+        let sort = sort_keyboard(&config, "1:2");
         let sort_buttons: Vec<_> = sort.inline_keyboard.into_iter().flatten().collect();
         let sort_callbacks: Vec<_> = sort_buttons
             .iter()
@@ -4971,12 +5106,23 @@ plain.example/list
         );
         assert!(sort_callbacks.contains(&"task:cancel:1:2".to_string()));
         assert!(
+            sort_buttons.iter().any(
+                |button| button.text == localized_text(&config, "b-cancel", TASK_CANCEL_BUTTON)
+            )
+        );
+        assert!(sort_callbacks.contains(&"task:sort:1:2:rtt".to_string()));
+        assert!(sort_callbacks.contains(&"task:sort:1:2:rrtt".to_string()));
+        assert!(
             sort_buttons
                 .iter()
-                .any(|button| button.text == TASK_CANCEL_BUTTON)
+                .any(|button| button.text == localized_text(&config, "b-origin", "Original"))
+        );
+        assert!(
+            sort_buttons
+                .iter()
+                .any(|button| button.text == localized_text(&config, "b-rtt", "RTT asc"))
         );
 
-        let mut config = KoipyConfig::default();
         config.slave_config.slaves = vec![crate::config::SlaveConfigEntry {
             id: "local".to_string(),
             comment: "Local".to_string(),
@@ -5015,6 +5161,42 @@ plain.example/list
             .collect();
         assert!(script_callbacks.contains(&"task:scripts:1:2:all".to_string()));
         assert!(script_callbacks.contains(&"task:cancel:1:2".to_string()));
+
+        let scripts = script_keyboard("1:2", &config, &store, 0);
+        let script_buttons: Vec<_> = scripts.inline_keyboard.into_iter().flatten().collect();
+        assert!(
+            script_buttons
+                .iter()
+                .any(|button| button.text == localized_text(&config, "page1", "Prev"))
+        );
+        assert!(
+            script_buttons
+                .iter()
+                .any(|button| button.text == localized_text(&config, "page2", "Next"))
+        );
+        assert!(script_buttons.iter().any(|button| {
+            button.text == format!("{} {}", localized_text(&config, "page", "Page"), 1)
+        }));
+        assert!(
+            script_buttons
+                .iter()
+                .any(|button| button.text == localized_text(&config, "b-all", "All"))
+        );
+        assert!(
+            script_buttons
+                .iter()
+                .any(|button| button.text == localized_text(&config, "b-reverse", "Reverse"))
+        );
+        assert!(
+            script_buttons
+                .iter()
+                .any(|button| button.text == localized_text(&config, "b-ok2", "OK"))
+        );
+        assert!(
+            script_buttons.iter().any(
+                |button| button.text == localized_text(&config, "b-cancel", TASK_CANCEL_BUTTON)
+            )
+        );
     }
 
     #[test]
@@ -5023,7 +5205,15 @@ plain.example/list
         assert!(known_callback_namespace("panel:anti"));
         assert!(known_callback_namespace("invite:rule:test"));
         assert!(!known_callback_namespace("mystery:action"));
-        assert_eq!(UNKNOWN_CALLBACK, "❌Unknown callback");
+        let mut config = KoipyConfig::default();
+        config.translation.resources.insert(
+            "zh-CN".to_string(),
+            "./resources/localization/zh-CN.yml".to_string(),
+        );
+        assert_eq!(
+            config.translation_value("unknown-callback").as_deref(),
+            Some("❌ 未知的回调类型")
+        );
         assert_eq!(TASK_CANCELLED, "✅Task cancelled");
     }
 

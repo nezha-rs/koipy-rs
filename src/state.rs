@@ -34,6 +34,8 @@ pub struct BotState {
     #[serde(default)]
     pub pending_script_selections: BTreeMap<String, ScriptSelection>,
     #[serde(default)]
+    pub pending_slave_selections: BTreeMap<String, SlaveSelection>,
+    #[serde(default)]
     pub pending_config_edits: BTreeMap<i64, PendingConfigEdit>,
     #[serde(default)]
     pub last_echo_at: BTreeMap<i64, DateTime<Utc>>,
@@ -166,6 +168,14 @@ pub struct ScriptSelection {
     pub page: usize,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct SlaveSelection {
+    #[serde(default)]
+    pub selected: Vec<String>,
+    #[serde(default)]
+    pub page: usize,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PendingConfigEdit {
     pub path: String,
@@ -200,6 +210,20 @@ impl ScriptSelection {
 
     pub fn contains(&self, name: &str) -> bool {
         self.selected.iter().any(|item| item == name)
+    }
+}
+
+impl SlaveSelection {
+    pub fn toggle(&mut self, id: &str) {
+        if let Some(index) = self.selected.iter().position(|item| item == id) {
+            self.selected.remove(index);
+        } else {
+            self.selected.push(id.to_string());
+        }
+    }
+
+    pub fn contains(&self, id: &str) -> bool {
+        self.selected.iter().any(|item| item == id)
     }
 }
 

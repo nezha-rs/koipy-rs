@@ -323,21 +323,49 @@ impl MiaoSpeedProgress {
         self.count == 1 || self.count >= self.total || self.count.saturating_sub(last_count) >= 4
     }
 
-    pub fn render_text(&self, slave_name: &str) -> String {
-        let stage = self.stage.as_deref().unwrap_or("running");
-        format!(
-            "MiaoSpeed realtime: {}/{} ({}%)\nSlave: {}\nStage: {}\nQueuing: {}",
-            self.count,
-            self.total,
-            self.percent(),
-            if slave_name.is_empty() {
-                "default"
-            } else {
-                slave_name
-            },
-            stage,
-            self.queuing
-        )
+    pub fn render_text(
+        &self,
+        slave_name: &str,
+        label_slave: &str,
+        label_queue: &str,
+        label_progress: &str,
+    ) -> String {
+        let slave_label = if slave_name.trim().is_empty() {
+            "Local"
+        } else {
+            slave_name.trim()
+        };
+        let percent = self.percent();
+        let filled = ((percent as usize) / 5).min(20);
+        let progress_bar = format!("[{}{}]", "=".repeat(filled), " ".repeat(20 - filled));
+        let progress_value = if self.total == 0 {
+            "0.00".to_string()
+        } else {
+            format!(
+                "{:.2}",
+                (self.count.min(self.total) as f64 / self.total as f64) * 100.0
+            )
+        };
+        let mut out = String::new();
+        out.push_str(&format!("{label_slave}{slave_label}\n"));
+        if let Some(stage) = self.stage.as_deref() {
+            out.push_str(&format!("{stage}\n"));
+        } else {
+            out.push('\n');
+        }
+        if self.queuing > 0 {
+            out.push_str(&format!("{label_queue} `{}`\n\n", self.queuing));
+        } else {
+            out.push('\n');
+        }
+        out.push_str(&format!("{progress_bar}\n\n"));
+        out.push_str(label_progress);
+        out.push('\n');
+        out.push_str(&format!(
+            "{progress_value}%     [{}/{}]",
+            self.count, self.total
+        ));
+        out
     }
 }
 
@@ -871,6 +899,9 @@ mod tests {
         assert_eq!(progress.percent(), 40);
         assert!(progress.should_emit(0));
         assert!(!progress.should_emit(2));
-        assert!(progress.render_text("local").contains("local"));
+        let rendered = progress.render_text("local", "Slave: ", "Queue size: ", "Progress: ");
+        assert!(rendered.contains("Slave: local"));
+        assert!(rendered.contains("[========            ]"));
+        assert!(rendered.contains("Progress:"));
     }
 }

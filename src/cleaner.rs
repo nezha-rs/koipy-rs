@@ -5,8 +5,8 @@ use serde_yaml::Value;
 use std::collections::BTreeMap;
 use url::Url;
 
-use crate::config::SubconverterConfig;
 use crate::config::RuntimeDnsConfig;
+use crate::config::SubconverterConfig;
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct ClashConfig {

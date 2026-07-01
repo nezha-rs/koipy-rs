@@ -1,0 +1,457 @@
+DrawError-1: GIF generation requires width > height
+DrawError-2: Resolution mismatch, falling back to image
+DrawError-3: Speed test items missing, falling back to image
+Export-AS: AS Number
+Export-App: Results for reference only
+Export-UntrustedBackendWarning: The connection between the master and slave is untrusted. Contact the administrator to resolve this issue.
+Export-AvgSpeed: Avg Speed
+Export-Backend: Slave
+Export-Cluster: Cluster
+Export-Mutil-Backend: Multi-Slave
+Export-Delay-key: Delay
+Export-DelayRtt: Delay RTT
+Export-DetailRegion: Detailed Region
+Export-Entrance: Entrance
+Export-Filter: Filter
+Export-Hijack: Speedtest Hijack
+Export-Hijack-False: ❌Hijacked
+Export-Hijack-True: ✅Not Hijacked
+Export-Http-s-Delay: HTTP(S) Delay
+Export-HttpDelay: HTTP Delay
+Export-HttpStatusCode: HTTP Code
+Export-HttpStdDev: HTTP StdDev
+Export-HttpsDelay: HTTPS Delay
+Export-InboundAddress: Inbound Address
+Export-InboundIPRange: Inbound IP Range
+Export-Invalid: Invalid Field
+Export-Index: Index
+Export-MaxHttp: MAX HTTP
+Export-MaxRtt: MAX RTT
+Export-MaxSpeed: Max Speed
+Export-NodeName: Node Name
+Export-Org: Org
+Export-OutboundCount: Outbound Count
+Export-OutboundIP: Outbound IP
+Export-OutboundNodeName: Node Name
+Export-PacketLoss: Packet Loss
+Export-ProtocolNotSupported: Protocol Not Supported
+Export-Region: Region
+Export-RttStdDev: RTT StdDev
+Export-Sort: Sort
+Export-Speed-key: Speed
+Export-SpeedPerSecond: Speed/s
+Export-Stack: Stack
+Export-StdDevRtt: Std Dev
+Export-Thread: Thread
+Export-TimeUsed: Time Used
+Export-TlsRtt: TLS RTT
+Export-TotalHttp: Total HTTP
+Export-TotalRtt: Total RTT
+Export-TrafficUsed: Traffic Used
+Export-Type: Type
+Export-UDPType: UDP Type
+Export-UpAvgSpeed: Avg Upload Speed
+Export-UpMaxSpeed: Max Upload Speed
+Export-UpSpeedPerSecond: Upload Speed/s
+Export-Version: Version
+Export-times: times
+KoiConfig-bot-bar: '='
+KoiConfig-bot-bleft: '[`'
+KoiConfig-bot-bright: '`]'
+KoiConfig-bot-bspace: ' '
+KoiError-1: FFmpeg process failed to start
+NetworkMetrics-avg-rtt: Avg RTT
+NetworkMetrics-failed-samples: Failed Samples
+NetworkMetrics-jitter: Jitter
+NetworkMetrics-max-rtt: Max RTT
+NetworkMetrics-min-rtt: Min RTT
+NetworkMetrics-name: Slave Name
+NetworkMetrics-packet-loss: Packet Loss
+NetworkMetrics-percentile-95-rtt: 95th Percentile RTT
+NetworkMetrics-status: Status
+NetworkMetrics-std-dev-rtt: RTT StdDev
+NetworkMetrics-successful-samples: Successful Samples
+Export-timestamp: Test Time
+NetworkMetrics-url-test: Real Latency
+NetworkMetrics-version: Slave Version
+SubInfo-download: '⬇️Used Download:'
+SubInfo-expire: '⏱️Expiration Date:'
+SubInfo-remain: '⏳Remaining Traffic:'
+SubInfo-site: '🌐Official Website:'
+SubInfo-total: '💧Total Traffic:'
+SubInfo-update-interval: '♻️Update Interval:'
+SubInfo-upload: '⬆️Used Upload:'
+SubInfo-used: '🚗Total Used:'
+about-copyright: '
+
+
+  **👇Open Source License Notice👇**
+
+
+  '
+about-no-license-file: ❌License file not found, try reinstalling
+about-title: ⚖️ [koipy](https://koipy.gitbook.io/koipy) is free software, free for all personal or organizational use⚖️
+b-add-conf: ➕Add Config
+b-alive: 🩺Survival Rate
+b-all: ♾️Full Test
+b-arspeed: ⬇️Avg Speed Desc
+b-aspeed: ⬆️Avg Speed Asc
+b-back: ⬆️Back
+b-callback-data-too-long: '❌ Callback data too long (>64 chars), consider shortening: '
+b-cancel: 👋Cancel Task
+b-cancel2: ✅Task cancelled
+b-close: ❌Close
+b-comeback: 🔙 Back
+b-comeback2: 🔙 Back to Preview
+b-del-conf: 🗑️Delete Config
+b-del-rule: 🗑️Delete Rule
+b-edit-conf: ✏️Edit Config
+b-edit-rule-url: ✏️Edit URL
+b-full: 🚗 Full Test
+b-hijack: 🕵️‍♂️ Hijack Check
+b-http: ⬆️HTTP Asc
+b-mrspeed: ⬇️Max Speed Desc
+b-mspeed: ⬆️Max Speed Asc
+b-nyd: N-Y-D
+b-ok: 👌Done
+b-ok2: 👌Selected
+b-okpage: 🔒Page Done
+b-origin: 🪵Original Order
+b-ping: 📶 Ping Test
+b-reload-conf: ♻️Reload Config
+b-reverse: 🪞Invert Selection
+b-rhttp: ⬇️HTTP Desc
+b-rrtt: ⬇️RTT Desc
+b-rtt: ⬆️RTT Asc
+b-speed: 🚗 Speed Test
+b-test: 📺 Connectivity
+b-topo: 🔗 Topology
+b-udptype: 📶 UDP Type
+b-uspeed: 🚗 Upload Speed
+born-1: Admin not configured. Please send any message to the bot after start, it will register you as admin.
+born-2: ✅Initialization successful, you are now the admin!
+born-3: Your UID is
+born-4: ✅Admin initialized
+born-5: 'Group ID: '
+bot-token-err: "Bot token not set. Add the following to config.yaml: \nbot: \n bot-token: 12345:abcdefg"
+bot-version: Bot Version
+build-time: Build Time
+bye: Bye~
+bypass: Bypass mode enabled. Built-in instructions disabled, only custom ones allowed.
+cache-not-found: ❌Cache not found, task cannot be generated.
+cfg-not-found: ❌ Error occurred
+cfg1: 'Path: '
+cfg2: |
+  **🔍YAML Config Preview**
+
+
+checkslaves-report: Slave Connectivity Test
+cmd: "Command:\r"
+colon: ':'
+command-disabled: '`{}` command has been disabled'
+commit: Commit Hash
+config-dep: This config format is deprecated, please check the latest examples.
+day: Days
+del-help: 'Usage: /del <JSON path>'
+demo1: |
+  This is the demo collection, available cases:
+
+
+demo2: 🖼️ Generate Drawing Demo
+demo3: Generating...
+demo4: 🔗 Open Color Palette
+demo5: Drawing demo uses config to preview colors, for testing only.
+deprecated1: ❌ Deprecated, use /panel instead
+disabled: ❌ Disabled
+enabled: ✅ Enabled
+error: '❌Error:'
+error-10: ❌Failed to init task, check logs
+error-11: ❌Bot cannot read replied message, check settings
+error-2: '⚠️Failed to generate image, possible reasons: too many nodes / unstable network'
+error-3: ❌UID must be numeric, authorization failed.
+error-4: ❌Node list empty, check filter or sub format.
+error-5: ❌Invalid bot-token
+error-6: ❌Wrong Botid
+error-7: ⚠️Test data not found, please test first!
+error-8: ❌Illegal parameter
+error-9: HTTP callback failed!
+execution-result: "Result:\r"
+execution-time: "Time:\r"
+fail: Fail
+file-too-large: ❌ File too large (>10MB)
+get-help: 'Usage: /get <JSON path>'
+get-value: "Command to get config:"
+grant-1: "UID added to authorized list:\n"
+grant-2: "UID removed from authorized list:\n"
+help-admin: ''
+help-other: ''
+help-rule: 'Usage: /rule <URL> <name:optional>'
+help-tail: ''
+help-title: "Node Test Bot, available commands:"
+help-tourist: ''
+help-user: ''
+hour: Hours
+http-status: 'Status: '
+http-text: 'Message: '
+init1: "Subscription blacklist (URL) initialized:"
+init2: Blacklist initialization error
+init3: "Subscription blacklist (Domain) initialized:"
+init4: Bot starting, if no response check network settings
+invite-1: 🎯Hello,
+invite-10: ⏳Waiting for sub link...
+invite-11: ❌Task queue destroyed, please retry
+invite-12: ⚠️Invalid URL
+invite-13: |
+  ❌Task cancelled
+
+
+  Reason: Timeout receiving sub link
+invite-14: ✨Success, check original chat for results
+invite-15: ❌Sub is blacklisted
+invite-16: 🔙Back to original chat
+invite-17: |
+  ❌Rule script not set for this invite
+
+  rule.name=
+invite-18: Already in invite queue, do not resubmit
+invite-19: '⚠️Invite rule {} overridden by config rules: {}'
+invite-2: 'Created a test task, choose type:'
+invite-20: 'Invite rule {} disabled'
+invite-3: Use /help for instructions
+invite-4: Type not found, cancelled validation.
+invite-5: ❌ID verification failed!
+invite-6: ✅ID verified
+invite-7: '🚗Task Items:'
+invite-8: '**Please send sub link in'
+invite-9: "s in Clash configuration format** <filter> \nOtherwise cancelled"
+is-not-admin: ❌Not an admin
+is-not-user: ❌No user permissions
+items: '
+
+  🧵Items: '
+leave1: 🔓 Anti-pull disabled, anyone can invite bot to groups
+leave2: 🔒 Anti-pull enabled, only admins can invite bot to groups
+leave3: ❌ Anti-pull active, contact admin
+leave4: ❌ Group only command
+leave5: |
+  👋Hi, I am @{username}. To make me respond in groups, settings required:
+
+
+leave6: |
+  Method 1: @me after each command, e.g. /version@{username}
+
+
+leave7: |
+  Method 2: Set bot as admin (no perms needed)
+
+
+leave8: "Method 3: Disable privacy mode in @BotFather [Privacy Mode](https://core.telegram.org/bots/features#privacy-mode)"
+license-about: 📜 About
+license-err: License read error
+license-err2: License not for this botid
+license-err3: ❌License expired
+license-err4: ⚠️ Standard version limits multi-slave testing to maximum 3, automatically taking the first 3. Consider sponsoring the developer to unlock this limit.
+license-limit1: ❌ Not for public test, consider sponsoring to unlock.
+license-parse-backend-num: "🔧 Slave Limit: "
+b-multi-slave: Multi-Slave Selection
+license-parse-bot-id: "🤖 Bot ID: "
+license-parse-expired: ❌ Expired
+license-parse-expires-at: "⏰ Expires At: "
+license-parse-group-test: "👥 Group Test: "
+license-parse-group-test2: ❌ Not Supported
+license-parse-group-test3: ✅ Supports {} groups
+license-parse-issued-at: "📅 Issued At: "
+license-parse-invalid: ⚠️ Invalid License
+license-parse-rule-num: "📋 Rule Limit: "
+license-parse-status: "**Status**: {}"
+license-parse-title: "**🔍 License Information**"
+license-parse-unlimited: ♾️ Unlimited
+license-parse-valid: "✅ Valid"
+license-parse-version: "📦 Version:"
+license_parse_version2: "`🏅Koipy Sponsor Version`"
+log-1: "Last lines of log:"
+log-2: lines
+match-cache: Cache hit, skipping fetch
+mem: Memory
+message: "Message:\r"
+minute: Minutes
+ms-no-slave: ❌No available slaves
+ms-type-err: SlaveType must be MiaoSpeed.
+ms-type-err2: MiaoSpeed.ssl_type invalid.
+nightshift: '🌙 Nightshift status: '
+ok: OK
+page: Page
+page1: ⬅️Prev
+page2: Next➡️
+page3: Forward
+page4: Backward
+page5: ➡️
+page6: ⬅️
+panel: 🧰 koipy Panel
+panel-section1: ⚙️ Configs
+panel-section2: 🪟 Open Mini-app
+parse-task-name: ❌No task ID, restart test
+parse-url-err: ❌No sub link found in parameters
+progress-1: ⏳Speed test in progress...
+progress-2: ⏳Topology analysis in progress...
+progress-3: ⏳Connectivity test in progress...
+progress-4: '⚙️Slave:'
+progress-5: '🎉Queue size:'
+progress-6: 'Progress:'
+progress-7: ⏳Slave connectivity test in progress...
+pyv: Python Version
+query-not-found: ❌Button resource reclaimed
+realtime: ❌Real-time Rendering
+realtime2: ✔️Real-time Rendering
+realtime3: ❌Permission denied
+realtime4: ❌Too many nodes (>40) for real-time
+realtime5: ⚠️Image size mismatch for real-time (too wide or long)
+realtime6: "❌Real-time supports at most {limit} nodes in multi-backend mode (current backends: {backend_count})"
+reboot: Rebooting...
+reboot2: Starting reboot (wait 5s)...
+regex-err: Regex error, check your expression
+reload-err: ❌Reload failed
+reload-ok: ✅Reload success
+reload1: |
+  ❓How to reload config
+
+
+reload2: Save changes and reload
+reload3: Discard changes and reload
+reload4: '‣ Option 1 '
+reload5: '‣ Option 2 '
+reload6: '⏳Receiving config update...'
+reload-ok2: '✅Config from Webapp applied successfully~'
+rule-invalid-url: ❌Invalid URL
+rule1: 'Rule hit: '
+rule10: '✅Removed rules: '
+rule11: '❌Failed to remove rules: '
+rule12: 'Usage: /remove <name1> <name2> ...'
+rule13: Hidden
+rule14: |
+  🎨Available preset rules (may be overridden):
+
+
+rule15: ❌Internal keyword as rule name
+rule16: ➕Create Rule
+rule2: 'Got URL: '
+rule3: ❌Permission denied for this rule
+rule4: "✅Rule set:"
+rule5: "✅Rule overridden:"
+rule6: "❌Rule creation failed:"
+rule7: "Saved rules:\n\n"
+rule8: ❌No saved rules
+rule9: ❌Rule name taken
+save1: Apply Config
+save2: ⚠️ Overwrite local config?
+save3: ✅ OK
+save4: ❌ Cancel
+scheme-not-found: Cannot handle URI
+script-ok: ⏳Generating task...
+script-select: "Choose script:\n"
+second: Seconds
+selected: Submitted
+selected-script: "\U0001F9F5Selected scripts:\n\n"
+selector-timeout-1: SlaveSelector timeout
+selector-timeout-2: SortSelector timeout
+set-help: 'Usage: /set <JSON path> <value>'
+set-value: "Command to set config:"
+set-value2: ⏳ Input new value (60s), /cancel to stop
+setcmd: Setting custom commands...
+setcmd2: 'Custom commands set to TG:'
+setcmd3: Command not enabled, please check config or bypass mode.
+slave-not-found: ❌No backends configured, cannot start task
+slave-select: |
+  Please choose backend:
+slave-multi-select: |
+  Please select multiple test slaves (multiple selection allowed):
+
+
+sort-select: "Choose sorting:\n"
+speed: Speed Test
+subget-err: '❌Fetch failed, domain:'
+subget-err2: ❌Node count limit exceeded, cancelled
+subinfo1: ❌No traffic info for this sub
+subinfo12: "🔍Query Time:"
+subinfo13: "☁️Sub Name:"
+subinfo14: "☁️Sub URL:"
+subinfo15: "✈️Site Name:"
+subinfo16: N/A
+subinfo2: "Usage 1: /traffic <URL>\nUsage 2: /subinfo <rule>"
+subinfo3: Querying traffic...
+subinfo4: Left(
+subinfo5: )
+subinfo6: ❌Security settings active, tourists denied
+subinfo7: '⚠️Tourists using /subinfo may leak IP. Set network.httpProxy to allow it.'
+submit: ⏳Submitted successfully, processing...
+submit2: ❌Submission failed, check parameters
+success: Success
+sysn: System Name
+syst: System Time
+sysv: System Version
+task-name: '
+
+  🎉Task Name: '
+task-stop-1: 🛑Stop Test
+test: Connectivity
+time-used: ⏱️Used Time=
+time-used2: '
+
+  ⏱️Total Time='
+timeout1: 🗑️Operation timeout
+tmp-slave: Temporary Local Slave #{num}
+tmp-slave2: |
+  **✅Temporary slave created**
+
+  ID: `{}`
+  Name: `{}`
+  Address: `{}`
+  Token: `{}`
+  Encryption: `{}`
+  Path: `{}`
+  Insecure: `{}`
+
+  ⚠️Note: Valid only while bot is running.
+tmp-slave3: 📌Save Permanently
+topo: Node Topology
+type: "Type:\r"
+uid: UID
+unknown-callback: ❌ Unknown callback
+usage-grant: "Usage 1: /grant <UID> ...\nUsage 2: /grant <reply to message>"
+usage-license: 'Usage: /license <UID>/<token>'
+usage-license2: For security, use private chat for /license
+username: Username
+value: "Value:\r"
+ws-conn-err: ❌WebSocket error
+ws-conn-err2: ❌Slave connection refused
+ws-conn-err3: 'Disconnected: Master --X--> *:'
+ws-conn-err4: 'Timeout: Master --X--> *:'
+ws-conn-err5: ❌Task cancelled
+ws-conn-err6: "❌Error: WebSocket disconnected"
+ws-conn-err7: '
+
+
+  ❌Slave Error='
+ws-conn-err8: ⏳Cancelling task...
+ws-conn-msg: '
+
+  🎗️Tip: fewer nodes = higher priority'
+ws-info: '‣ '
+ws-info10: units
+ws-info11: ✅Request sent to {} , awaiting response...
+ws-info12: 'Unsafe websocket path: '
+ws-info13: ❌Invalid results, task discarded
+ws-info14: Receiving tasks |
+ws-info15: Finished, generating report...
+ws-info16: nodes
+ws-info2: '‣ '
+ws-info3: '✅Alive Slaves '
+ws-info4: '❌Offline Slaves '
+ws-info5: cached results
+ws-info6: Update in
+ws-info7: seconds
+ws-info8: ❌Other user checking slaves, please wait...
+ws-info9: 🔍Checking slaves...
+refresh_lang: 'Language has been switched to {}'
+refresh_lang_failed: 'Failed to switch language, language pack file for {} not found'
+current_lang: 'Current language: {}'

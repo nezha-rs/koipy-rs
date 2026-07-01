@@ -73,6 +73,7 @@ async fn progress(
     }
     Json(json!({
         "overall": ProgressReport::current().overall(),
+        "overallPrecise": ProgressReport::current().overall_precise(),
         "markdown": ProgressReport::current().render_markdown(),
     }))
     .into_response()
@@ -249,6 +250,33 @@ mod tests {
             .await
             .expect("authorized");
         assert_eq!(response.status(), axum::http::StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn progress_reports_precise_percentage() {
+        let app = router(KoipyConfig::default());
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/progress")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .expect("response");
+        assert_eq!(response.status(), axum::http::StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .expect("body");
+        let value: serde_json::Value = serde_json::from_slice(&body).expect("json");
+        assert_eq!(value["overall"], 99);
+        assert_eq!(value["overallPrecise"], 99.6);
+        assert!(
+            value["markdown"]
+                .as_str()
+                .expect("markdown")
+                .starts_with("Rust rewrite overall progress: 99.6%")
+        );
     }
 
     #[tokio::test]

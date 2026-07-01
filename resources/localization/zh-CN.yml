@@ -1,0 +1,462 @@
+DrawError-1: 生成动图要求图像的宽度应大于高度
+DrawError-2: 分辨率无法满足要求，无法生成视频，使用图片替代
+DrawError-3: 此测试不包含测速相关的测试项，无法生成视频，已切换为图片输出
+Export-AS: AS编号
+Export-App: 测试结果仅供参考，以实际情况为准
+Export-UntrustedBackendWarning: 主端与后端的通信处于不可信环境，联系管理员解决此问题
+Export-AvgSpeed: 平均速度
+Export-Backend: 后端
+Export-Cluster: 簇
+Export-Delay-key: 延迟
+Export-DelayRtt: 延迟RTT
+Export-DetailRegion: 详细地区
+Export-Entrance: 入口
+Export-Filter: 过滤器
+Export-Hijack: 测速劫持
+Export-Hijack-False: ❌被劫持
+Export-Hijack-True: ✅未劫持
+Export-Http-s-Delay: HTTP(S)延迟
+Export-HttpDelay: HTTP延迟
+Export-HttpStatusCode: HTTP状态码
+Export-HttpStdDev: HTTP标准差
+Export-HttpsDelay: HTTPS延迟
+Export-InboundAddress: 入口地址
+Export-InboundIPRange: 入口ip段
+Export-Index: 序号
+Export-Invalid: 无效字段
+Export-MaxHttp: MAX HTTP
+Export-MaxRtt: MAX RTT
+Export-MaxSpeed: 最大速度
+Export-Mutil-Backend: 集群后端
+Export-NodeName: 节点名称
+Export-Org: 组织
+Export-OutboundCount: 出口数量
+Export-OutboundIP: 出口ip
+Export-OutboundNodeName: 节点名称
+Export-PacketLoss: 丢包率
+Export-ProtocolNotSupported: 协议不支持
+Export-Region: 地区
+Export-RttStdDev: RTT标准差
+Export-Sort: 排序
+Export-Speed-key: 速度
+Export-SpeedPerSecond: 每秒速度
+Export-Stack: 栈
+Export-StdDevRtt: 标准差
+Export-Thread: 线程
+Export-TimeUsed: 耗时
+Export-TlsRtt: TLS RTT
+Export-TotalHttp: 总HTTP
+Export-TotalRtt: 总RTT
+Export-TrafficUsed: 消耗流量
+Export-Type: 类型
+Export-UDPType: UDP类型
+Export-UpAvgSpeed: 平均上行速度
+Export-UpMaxSpeed: 最大上行速度
+Export-UpSpeedPerSecond: 每秒上行速度
+Export-Version: 版本
+Export-times: 次
+Export-timestamp: 测试时间
+KoiConfig-bot-bar: '='
+KoiConfig-bot-bleft: '[`'
+KoiConfig-bot-bright: '`]'
+KoiConfig-bot-bspace: ' '
+KoiError-1: FFmpeg 进程未正确启动
+NetworkMetrics-avg-rtt: 平均延迟
+NetworkMetrics-failed-samples: 失败次数
+NetworkMetrics-jitter: 平均抖动
+NetworkMetrics-max-rtt: 最高延迟
+NetworkMetrics-min-rtt: 最低延迟
+NetworkMetrics-name: 后端名称
+NetworkMetrics-packet-loss: 丢包率
+NetworkMetrics-percentile-95-rtt: 95th百分位RTT
+NetworkMetrics-status: 状态
+NetworkMetrics-std-dev-rtt: 延迟标准差
+NetworkMetrics-successful-samples: 成功次数
+NetworkMetrics-url-test: 真延迟
+NetworkMetrics-version: 后端版本
+SubInfo-download: ⬇️已用下行：
+SubInfo-expire: ⏱️过期时间：
+SubInfo-remain: ⏳剩余流量：
+SubInfo-site: 🌐官网：
+SubInfo-total: 💧总流量：
+SubInfo-update-interval: ♻️更新间隔：
+SubInfo-upload: ⬆️已用上行：
+SubInfo-used: 🚗总共使用：
+about-copyright: '
+
+
+  **👇开放源代码许可说明👇**
+
+
+  '
+about-no-license-file: ❌未找到许可文件，请尝试重新安装
+about-title: ⚖️ [koipy](https://koipy.gitbook.io/koipy) 是免费软件，授权所有个人或组织免费使用⚖️
+b-add-conf: ➕新增配置
+b-alive: 🩺节点存活率
+b-all: ♾️全测
+b-arspeed: ⬇️平均速度降序
+b-aspeed: ⬆️平均速度升序
+b-back: ⬆️返回上一层
+b-callback-data-too-long: '❌ 按钮的回调数据过长，超过了64个字符(内部占用一部分)，考虑缩短此数据长度： '
+b-cancel: 👋取消任务
+b-cancel2: ✅测试任务已取消
+b-close: ❌关闭页面
+b-comeback: 🔙 返回上一层
+b-comeback2: 🔙 返回预览
+b-del-conf: 🗑️删除配置
+b-del-rule: 🗑️删除规则
+b-edit-conf: ✏️修改配置
+b-edit-rule-url: ✏️修改URL
+b-full: 🚗 全量测试
+b-hijack: 🕵️‍♂️ 劫持检测
+b-http: ⬆️HTTP升序
+b-mrspeed: ⬇️最大速度降序
+b-mspeed: ⬆️最大速度升序
+b-multi-slave: 多后端选择
+b-nyd: 御三家(N-Y-D)
+b-ok: 👌完成设置
+b-ok2: 👌完成选择
+b-okpage: 🔒完成本页选择
+b-origin: 🪵订阅原序
+b-ping: 📶 延迟测试
+b-reload-conf: ♻️重载配置
+b-reverse: 🪞选项翻转
+b-rhttp: ⬇️HTTP降序
+b-rrtt: ⬇️RTT降序
+b-rtt: ⬆️RTT升序
+b-speed: 🚗 下行速度测试
+b-test: 📺 连通性测试
+b-topo: 🔗 拓扑测试
+b-udptype: 📶 UDP类型
+b-uspeed: 🚗 上行速度测试
+born-1: 您尚未配置管理员，请在bot启动成功后私聊bot发送任意消息，bot会自动将您注册为管理员。
+born-2: ✅初始化成功，您已被确定成管理员，已将您的身份写入到配置文件~
+born-3: 您的UID为
+born-4: ✅已初始化管理员
+born-5: '群组ID: '
+bot-token-err: "您没有设置bot-token，考虑在config.yaml加入以下配置: \nbot: \n bot-token: 12345:abcdefg"
+bot-version: Bot版本
+build-time: 编译时间
+bye: 再见~
+bypass: 旁路模式已启用，bot所有内置指令已被禁用，仅可以使用配置中的自定义指令~
+cache-not-found: ❌缓存资源未找到，任务无法生成。
+cfg-not-found: ❌ 发生错误
+cfg1: '路径： '
+cfg2: '**🔍YAML格式配置文件预览**
+
+
+  '
+checkslaves-report: 后端连通性测试
+cmd: "指令：\r"
+colon: ':'
+command-disabled: '`{}` 指令已被禁用'
+commit: 提交哈希
+config-dep: 此配置写法格式已弃用，请查看最新配置示例写法
+current-lang: 当前语言：{}
+day: 天
+del-help: '使用方法: /del <JSON路径表达式>'
+demo1: '这是demo合集，以下是可供测试的用例：
+
+  '
+demo2: 🖼️ 生成绘图示例
+demo3: 正在生成...
+demo4: 🔗 打开调色版
+demo5: 绘图示例使用配置文件中的绘图配置，可以快速预览配色效果，仅供测试使用
+deprecated1: ❌ 该指令已弃用，请使用 /panel 替代
+disabled: ❌ 已禁用
+dns-ok: '获取到了dns配置：
+
+  {}'
+dns-ok2: DNS动态注入已启用，后端将实时更改DNS来解析节点服务器地址
+enabled: ✅ 已启用
+error: '❌发生错误:'
+error-10: ❌无法初始化任务，请查阅后台日志输出的错误信息
+error-11: ❌Bot无法读取您引用的那条消息，尝试检查bot的设置
+error-2: '⚠️生成图片失败,可能原因: 节点过多/网络不稳定'
+error-3: ❌UID需要是全数字，授权失败。
+error-4: ❌节点数量为空，请检查你的过滤器或者订阅格式是否正确。
+error-5: ❌此bot-token无效
+error-6: ❌错误的Botid
+error-7: ⚠️Bot无法找到您的测试数据，请先测试一次哦~
+error-8: ❌非法参数，请检查!
+error-9: HTTP回调请求失败！
+execution-result: "执行结果：\r"
+execution-time: "执行时间：\r"
+fail: 失败
+file-too-large: ❌ 文件过大，请上传小于10MB的文件
+get-help: '使用方法: /get <JSON路径表达式>'
+get-value: 获取该配置的指令：
+grant-1: "以下UID已被加入到授权列表: \n"
+grant-2: "以下UID已被移出授权列表: \n"
+help-admin: ''
+help-other: ''
+help-rule: '使用方法: /rule <订阅链接> <订阅名:可选>'
+help-tail: ''
+help-title: 节点测试BOT，可用指令如下：
+help-tourist: ''
+help-user: ''
+hour: 小时
+http-status: '状态： '
+http-text: '消息： '
+init1: 初始化订阅黑名单(URL)成功，前往此地址查看：
+init2: 初始化订阅黑名单出错
+init3: 初始化订阅黑名单(域名)成功，前往此地址查看：
+init4: Bot正在启动，如果后续长时间无反应，请检查网络设置
+invite-1: 🎯您好,
+invite-10: ⏳正在等待上传订阅链接~
+invite-11: ❌此任务队列已被销毁，请重试
+invite-12: ⚠️无效的URL
+invite-13: '❌任务已取消
+
+
+  原因: 接收订阅链接超时'
+invite-14: ✨提交成功，请返回原对话查看测试结果
+invite-15: ❌此订阅已被加入到测试黑名单
+invite-16: 🔙返回原对话
+invite-17: '❌当前邀请测试对应的rule.script未被设置
+
+  rule.name='
+invite-18: 此目标已经在邀请队列中，请勿重复提交
+invite-19: '⚠️此invite内置规则: {} 已被覆盖为配置文件中的同名规则，内置规则有: {}'
+invite-2: '为您创建了一个测试任务，请选择测试的类型:'
+invite-20: '此invite内置规则: {} 已被禁用'
+invite-3: 输入 /help 查看使用说明
+invite-4: 未找到测试类型，取消验证。
+invite-5: ❌ID验证失败，请不要乱用别人的测试哦！
+invite-6: ✅身份验证成功
+invite-7: '🚗任务项:'
+invite-8: '**接下来请在'
+invite-9: "s内发送Clash配置格式的订阅链接** <过滤器> \n否则任务取消"
+is-not-admin: ❌您不是bot的管理员，无法操作~
+is-not-user: ❌您没有用户权限，无法使用~
+items: '
+
+  🧵测试项: '
+leave1: 🔓 关闭了防拉群，现在BOT可以被任何人邀请加入群组
+leave2: 🔒 开启了防拉群，现在BOT只能被管理员邀请加入群组
+leave3: ❌ 机器人已启动防拉群模式，请联系管理员拉群
+leave4: ❌ 该指令仅能在群组生效，莫非想抛弃我😭
+leave5: '👋你好呀，我是 @{username}，要让我在群组中响应对应指令，需要设置：
+
+
+  '
+leave6: '方法一：在每个指令的后面@我，例如： /version@{username}
+
+  '
+leave7: '方法二：将bot设置为TG群组管理员，但不需要任何权限
+
+  '
+leave8: 方法三：在 @BotFather 关闭bot的隐私模式。[隐私模式](https://core.telegram.org/bots/features#privacy-mode)
+license-about: 📜 关于
+license-err: 激活码读取错误，请检查激活码是否输入正确
+license-err2: 此激活码无法适用于您的botid
+license-err3: ❌您的激活码已过期
+license-err4: ⚠️ 标准版限制多后端联测数量最大为3个，已自动取前3个。考虑赞助开发者以解锁此限制
+license-limit1: ❌ 您的激活码不适用于公开测试，考虑赞助开发者以解锁此功能。
+license-parse-backend-num: '🔧 后端数量: '
+license-parse-bot-id: '🤖 Bot ID: '
+license-parse-expired: ❌ 已过期
+license-parse-expires-at: '⏰ 过期时间: '
+license-parse-group-test: '👥 群组测试: '
+license-parse-group-test2: ❌ 不支持
+license-parse-group-test3: ✅ 支持{}个
+license-parse-invalid: ⚠️ 无效的许可证
+license-parse-issued-at: '📅 签发时间: '
+license-parse-rule-num: '📋 规则数量: '
+license-parse-status: '**状态**: {}'
+license-parse-title: '**🔍 许可证信息**'
+license-parse-unlimited: ♾️ 无限制
+license-parse-valid: ✅ 有效
+license-parse-version: '📦 版本: '
+license-parse-version2: '`🏅koipy sponsor 赞助版`'
+log-1: 已输出日志文件的最后
+log-2: 行
+match-cache: 订阅缓存已被命中，将不会从订阅地址重新获取订阅。
+mem: 运行内存
+message: "消息：\r"
+minute: 分钟
+ms-no-slave: ❌多后端联测没有找到可用的后端
+ms-type-err: SlaveType must be MiaoSpeed. Please check your SlaveRequest Object.
+ms-type-err2: MiapSpeed.ssl_type value is invalid.
+nightshift: '🌙 夜间模式当前状态： '
+ok: 完毕
+page: 页
+page1: ⬅️上一页
+page2: 下一页➡️
+page3: 前进
+page4: 后退
+page5: ➡️
+page6: ⬅️
+panel: 🧰 koipy控制面板
+panel-section1: ⚙️ 配置管理
+panel-section2: 🪟 打开Mini-app
+parse-task-name: ❌无法获得任务ID，重新发起测试吧~
+parse-url-err: ❌无法从消息的参数中获取到订阅链接
+progress-1: ⏳速度测试进行中...
+progress-2: ⏳拓扑分析测试进行中...
+progress-3: ⏳连通性测试进行中...
+progress-4: '⚙️后端:'
+progress-5: '🎉队列中的任务数量为:'
+progress-6: '当前进度:'
+progress-7: ⏳后端连通性测试进行中...
+pyv: Python版本
+query-not-found: ❌按钮资源已回收~
+realtime: ❌实时渲染
+realtime2: ✔️实时渲染
+realtime3: ❌没有权限执行此操作
+realtime4: ❌不支持节点数量大于40的实时渲染
+realtime5: ⚠️图片大小已不适合实时渲染，太宽或者太长
+realtime6: ❌多后端实时渲染最多支持 {limit} 个节点（当前后端数：{backend_count}）
+reboot: 正在重启bot...
+reboot2: ️开始重启(大约等待五秒)...
+refresh-lang: 语言已切换为 `{}`
+refresh-lang-failed: 语言切换失败，未找到 `{}` 对应的语言包文件
+regex-err: 正则匹配错误，请检查正则表达式
+reload-err: ❌配置重载失败
+reload-ok: ✅配置重载成功~
+reload-ok2: ✅来自Webapp的配置已成功应用~
+reload1: '❓您希望如何重载配置文件
+
+
+  '
+reload2: 保存内存中的配置文件改动并重载
+reload3: 丢弃内存中的改动重新读取配置文件
+reload4: '‣ 选项1 '
+reload5: '‣ 选项2 '
+reload6: ⏳正在接收配置更新...
+rule-invalid-url: ❌无效的URL
+rule1: '规则已被命中： '
+rule10: '✅成功移除以下规则: '
+rule11: '❌以下规则移除失败，无法找到或者权限不够: '
+rule12: '使用方法: /remove <规则名1> <规则名2> ...'
+rule13: 已隐藏
+rule14: '🎨存在以下预设规则，选择可能会被覆盖：
+
+  '
+rule15: ❌无法使用内部关键字作为规则名
+rule16: ➕创建规则
+rule2: '获取到的URL： '
+rule3: ❌你没有权限应用此规则
+rule4: ✅规则设置成功：
+rule5: ✅规则覆盖成功：
+rule6: ❌规则创建失败：
+rule7: "当前已保存的规则如下： \n\n"
+rule8: ❌没有找到保存的规则
+rule9: ❌此规则名已被占用
+save1: 应用配置
+save2: ⚠️ 执行此操作将会覆盖本地配置文件，是否继续？
+save3: ✅ 确定
+save4: ❌ 取消
+scheme-not-found: 无法处理此URI
+script-ok: ⏳正在生成测试任务......
+script-select: "请选择要测试的脚本名称: \n"
+second: 秒
+selected: 已完成本页提交
+selected-script: "\U0001F9F5当前已选择的测试脚本: \n\n"
+selector-timeout-1: SlaveSelector获取超时
+selector-timeout-2: SortSelector获取超时
+set-help: '使用方法: /set <JSON路径表达式> <值>'
+set-value: 设置该配置的指令：
+set-value2: ⏳ 请在60秒内输入新的值，按 /cancel 取消
+setcmd: 正在设置自定义指令...
+setcmd2: '成功设置自定义指令到TG(不代表已启用的bot指令): '
+setcmd3: 命令未在配置文件中启用，已被禁用，请在配置文件中启用或者关闭旁路模式后再试。
+slave-multi-select: "请选择多个测试后端(可多选): \n"
+slave-not-found: ❌您没有配置任何后端，无法发起测试任务~
+slave-select: '请选择测试后端:
+
+  '
+sort-select: "请选择排序方式: \n"
+speed: 速度测试
+subget-err: '❌获取订阅失败，出错域名:'
+subget-err2: ❌节点数量超出限制，已取消测试
+subinfo1: ❌此订阅无法获取流量信息~
+subinfo12: 🔍查询时间：
+subinfo13: ☁️订阅名称：
+subinfo14: ☁️订阅链接：
+subinfo15: ️✈️机场名：
+subinfo16: 无法获取
+subinfo2: "使用方法1: /traffic & /subinfo & /流量查询 <订阅链接> \n使用方法2: /subinfo <规则名>"
+subinfo3: 正在查询流量信息...
+subinfo4: 剩余(
+subinfo5: )
+subinfo6: ❌管理员未进行安全设置，游客暂时无法查看使用该指令
+subinfo7: '⚠️有游客正在使用/subinfo指令，这将导致主端IP泄露，要允许游客使用该指令，在配置设置一个http代理: network.httpProxy'
+submit: ⏳任务提交成功，正在处理中......
+submit2: ❌任务提交失败，尝试检查指令上的参数是否正确
+success: 成功
+sysn: 系统名称
+syst: 系统时间
+sysv: 系统版本
+task-name: '
+
+  🎉任务名称: '
+task-stop-1: 🛑中止测试
+test: 连通性测试
+time-used: ⏱️测试耗时=
+time-used2: '
+
+  ⏱️总体耗时='
+timeout1: 🗑️操作超时，接收器资源已丢弃
+tmp-slave: 临时本地后端{num}号
+tmp-slave2: '**✅临时后端已经创建**
+
+
+  后端id：`{}`
+
+  后端名称：`{}`
+
+  后端地址：`{}`
+
+  后端Token：`{}`
+
+  加密通信：`{}`
+
+  后端路径：`{}`
+
+  跳过证书验证：`{}`
+
+
+  ⚠️请注意：临时后端仅在bot运行期间有效'
+tmp-slave3: 📌永久保存
+topo: 节点拓扑分析
+type: "类型：\r"
+uid: UID
+unknown-callback: ❌ 未知的回调类型
+usage-grant: '使用方法1: /grant 或 /ungrant <UID> <UID2> <UID3> ... <UID99999>
+
+  使用方法2: /grant 或 /ungrant <回复一个目标>'
+usage-license: '使用方法: `/license <Bot的UID>/<Bot-token>`'
+usage-license2: 为确保个人信息安全，请前往私聊发送 `/license`
+username: 用户名
+value: "值：\r"
+ws-conn-err: ❌无法找到对应的WebSocket连接
+ws-conn-err2: ❌后端连接失败，远程计算机拒绝网络连接
+ws-conn-err3: '测试结束已断开连接: 主端 --X--> *:'
+ws-conn-err4: '连接超时: 主端 --X--> *:'
+ws-conn-err5: ❌测速任务已取消
+ws-conn-err6: '❌发生错误: WebSocket连接已断开'
+ws-conn-err7: '
+
+
+  ❌出错后端='
+ws-conn-err8: ⏳测速任务正在取消......
+ws-conn-msg: '
+
+  🎗️提示: 更少的节点数量将获得更高的测试优先级'
+ws-info: '▸ '
+ws-info10: 个
+ws-info11: ✅已发送测试请求到 {} ，正在等待回应~
+ws-info12: '使用了不安全的websocket连接路径： '
+ws-info13: ❌无效的测试结果数据，任务已被丢弃
+ws-info14: 接收测试任务 |
+ws-info15: 测试任务已完成，正在生成报告...
+ws-info16: 个节点
+ws-info2: '▸ '
+ws-info3: '✅存活后端 '
+ws-info4: '❌离线后端 '
+ws-info5: 的缓存结果
+ws-info6: 您可以在
+ws-info7: 秒后更新信息
+ws-info8: ❌其他用户正在检查后端情况，请等待锁释放~
+ws-info9: 🔍正在检查后端情况...
