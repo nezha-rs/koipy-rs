@@ -26,6 +26,8 @@ koipy 1.0 的 Rust 重构版。
 
 Release 页面提供 Linux amd64 二进制文件。普通用户推荐直接下载二进制启动，不需要在服务器上安装 Rust。
 
+搭建 bot 的最短路径就是：准备 Telegram `api-id`、`api-hash` 和 `bot-token`，再填好管理员 `admin` 与至少一个 `slaveConfig.slaves` 后端，然后按下面步骤启动。
+
 ### 1. 下载
 
 ```bash
@@ -42,33 +44,35 @@ wget https://raw.githubusercontent.com/nezha-rs/koipy-rs/master/config.example.y
 nano config.yaml
 ```
 
-至少需要填写：
+最少要改这几项：
 
-- `bot.bot-token`：Telegram Bot Token
-- `slaveConfig.slaves`：至少一个 MiaoSpeed 后端
-- `admin`：管理员 UID
+- `bot.api-id`
+- `bot.api-hash`
+- `bot.bot-token`
+- `admin`
+- `slaveConfig.slaves`
 
-### 3. 检查配置
+### 3. 启动前检查
 
 ```bash
 ./koipy-rs-linux-amd64 --config config.yaml check
 ```
 
-### 4. 启动服务
+### 4. 启动机器人
 
 ```bash
 ./koipy-rs-linux-amd64 --config config.yaml serve
 ```
 
-### 5. 后台运行示例
+### 5. 后台运行
 
-使用 `nohup`：
+`nohup`：
 
 ```bash
 nohup ./koipy-rs-linux-amd64 --config config.yaml serve > koipy-rs.log 2>&1 &
 ```
 
-使用 systemd：
+`systemd`：
 
 ```ini
 [Unit]
@@ -93,6 +97,13 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now koipy-rs
 sudo systemctl status koipy-rs
 ```
+
+### 6. 首次搭建 bot 的检查顺序
+
+1. 先确认 Telegram `api-id`、`api-hash`、`bot-token` 都已填写。
+2. 再确认 `admin` 和至少一个 `slaveConfig.slaves` 后端已经配置好。
+3. 先跑 `check`，没报错再跑 `serve`。
+4. 如果要公开部署，优先用 `systemd` 托管。
 
 ## 从源码构建
 
@@ -279,10 +290,6 @@ cargo fmt
 ## 仓库结构
 
 - `src/`：实现代码
+- `resources/`：字体、图片、脚本、语言包和证书资源
 - `config.example.yaml`：示例配置
-- `RUST_REWRITE_PROGRESS.md`：重构进度表
 - `Cargo.toml` / `Cargo.lock`：Rust 包元数据
-
-## 为什么保留进度文件
-
-`RUST_REWRITE_PROGRESS.md` 用来按子系统量化当前重构状态，方便持续推进和对外说明进度。
