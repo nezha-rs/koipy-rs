@@ -24,14 +24,16 @@ koipy 1.0 的 Rust 重构版。
 
 ## 下载二进制启动
 
-Release 页面提供 Linux amd64 二进制文件。普通用户推荐直接下载二进制启动，不需要在服务器上安装 Rust。
+Release 页面提供 Linux amd64 发布包，里面包含二进制和 `resources/`。普通用户推荐直接下载发布包启动，不需要在服务器上安装 Rust。
 
 搭建 bot 的最短路径就是：准备 Telegram `api-id`、`api-hash` 和 `bot-token`，再填好管理员 `admin` 与至少一个 `slaveConfig.slaves` 后端，然后按下面步骤启动。
 
 ### 1. 下载
 
 ```bash
-wget https://github.com/nezha-rs/koipy-rs/releases/latest/download/koipy-rs-linux-amd64
+wget https://github.com/nezha-rs/koipy-rs/releases/latest/download/koipy-rs-linux-amd64.tar.gz
+tar -xzf koipy-rs-linux-amd64.tar.gz
+cd koipy-rs-linux-amd64
 chmod +x koipy-rs-linux-amd64
 ```
 
